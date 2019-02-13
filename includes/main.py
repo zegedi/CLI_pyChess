@@ -1,4 +1,5 @@
 from includes.gameRules import GameManadgement
+from random import randint
 
 class Main(GameManadgement):
 
@@ -10,8 +11,8 @@ class Main(GameManadgement):
       try:
          myfile = "chess" + str(randint(1,3)) + ".txt"
          #opening the Chess ASCII Character files
-         with open(myfile, "r", encoding="utf8") as file:
-            print(file.read())
+         with open(myfile, "r", encoding="utf8") as f:
+            print(f.read())
       except:
          print("SAKK by Viktor Egedi")
    
@@ -25,7 +26,7 @@ class Main(GameManadgement):
       try:
          while True:
             if (self.players['player01'] == "" or self.players['player02'] == ""):
-               print("\n\nA játék megkezdéséhez regisztrálni kell a játékosokat!\n")
+               print("A játék megkezdéséhez regisztrálni kell a játékosokat!\n")
                self.players['player01'] = input("Kérem adja meg a fehér játékos nevét: ")
                self.players['player02'] = input("Kérem adja meg a fekete játékos nevét: ")
             else:
@@ -57,8 +58,8 @@ class Main(GameManadgement):
          #if the players want to play
          elif (ans == "igen"):
             #Then the games starts
-            nwGame = GameManadgement()
+            nwGame = GameManadgement(player01=self.players['player01'], player02=self.players['player02'], color01=self.players['color01'], color02=self.players['color02'])
 
-            #if the game is finished we delete the mwGame
+            #if the game is finished we delete the mwGamex
             if nwGame:
                del nwGame

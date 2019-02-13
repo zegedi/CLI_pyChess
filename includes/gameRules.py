@@ -1,6 +1,340 @@
+from random import randint
+import re
+
+class GameManadgement():
+
+   #PAWN
+   """
+   This method is for validating a pawn move
+   """
+   def pawn_move(self, nowX, nowY, nextX, nextY, color, useCopyTable=False):
+      
+      #if the pawn is BLACK
+      if color == "black":
+
+         #if the pawn moves 1 step forward
+         if nextY == nowY + 1:
+
+            #if it's a normal forward move
+            if nextX == nowX:
+               if self.checkTable(x=nextX, y=nextY, returnCol=True, useCopyTable=useCopyTable) == "":
+                  return True
+               else:
+                  return False
+
+            #if the pawn wants to kill
+            elif (nextX == nowX -1) or (nextX == nowX + 1):
+               if self.checkTable(x=nextX, y=nextY, returnCol=True, useCopyTable=useCopyTable) == "white":
+                  return True
+               else:
+                  return False
+
+         #if this is the first move of the (2 steps forward)
+         elif nowY == 2 and nextY == nowY + 2 and nowX == nextX:
+            if self.checkTable(x=nextX, y=nextY, returnCol=True, useCopyTable=useCopyTable) == "":
+               return True
+            else:
+               return False
+         
+         #if the move is invalid
+         else:
+            return False
+
+      
+      #if the pawn is WHITE
+      elif color == "white":
+
+         #if the pawn moves 1 step forward
+         if nextY == nowY - 1:
+            
+            #if it's a normal forward move
+            if nextX == nowX:
+               if self.checkTable(x=nextX, y=nextY, returnCol=True, useCopyTable=useCopyTable) == "":
+                  return True
+               else:
+                  return False
+
+            #if the pawn wants to kill
+            elif (nextX == nowX -1) or (nextX == nowX + 1):
+               if self.checkTable(x=nextX, y=nextY, returnCol=True, useCopyTable=useCopyTable) == "black":
+                  return True
+               else:
+                  return False
+
+         #if this is the first move of the (2 steps forward)
+         elif nowY == 7 and nextY == nowY - 2 and nowX == nextX:
+            if self.checkTable(x=nextX, y=nextY, returnCol=True, useCopyTable=useCopyTable) == "":
+               return True
+            else:
+               return False
+         
+         #if the move is invalid
+         else:
+            return False
 
 
-class GameManadgement(Main, Figures):
+   
+   #ROOK
+   """
+   This method is for validating the rook's move
+   """
+   def rook_move(self, nowX, nowY, nextX, nextY, color, useCopyTable=False):
+
+      #rook moves up
+      if nowX == nextX and nowY > nextY:
+         y = nowY - 1
+         while y != nextY:
+            col = self.checkTable(x=nowX, y=y, returnCol=True, useCopyTable=useCopyTable)
+            if bool(col):
+               return False
+            y -= 1
+         col = self.checkTable(x=nowX, y=y, returnCol=True, useCopyTable=useCopyTable)
+         if color != col:
+            return True
+         else:
+            return False
+      
+      #rook moves down
+      elif nowX == nextX and nowY < nextY:
+         y = nowY + 1
+         while y != nextY:
+            col = self.checkTable(x=nowX, y=y, returnCol=True, useCopyTable=useCopyTable)
+            if bool(col):
+               return False
+            y += 1
+         col = self.checkTable(x=nowX, y=y, returnCol=True, useCopyTable=useCopyTable)
+         if color != col:
+            return True
+         else:
+            return False
+      
+      #rook moves right
+      elif nowY == nextY and nowX < nextX:
+         x = nowX + 1
+         while x != nextY:
+            col = self.checkTable(x=x, y=nowY, returnCol=True, useCopyTable=useCopyTable)
+            if bool(col):
+               return False
+            x += 1
+         col = self.checkTable(x=x, y=nowY, returnCol=True, useCopyTable=useCopyTable)
+         if color != col:
+            return True
+         else:
+            return False
+
+      #rook moves left
+      elif nowY == nextY and nowX > nextX:
+         x = nowX - 1
+         while x != nextY:
+            col = self.checkTable(x=x, y=nowY, returnCol=True, useCopyTable=useCopyTable)
+            if bool(col):
+               return False
+            x -= 1
+         col = self.checkTable(x=x, y=nowY, returnCol=True, useCopyTable=useCopyTable)
+         if color != col:
+            return True
+         else:
+            return False
+
+      #if the move is invalid
+      else:
+         return False
+   
+
+   #KNIGHT
+   """
+   This method is for validating the knight's move
+   """
+   def knight_move(self, nowX, nowY, nextX, nextY, color, useCopyTable=False):
+      
+      #gets the color ot the nextPosition field
+      col = self.checkTable(x=nextX, y=nextY, returnCol=True, useCopyTable=useCopyTable)
+
+      #validating the posible positions of the move
+      #if it moves 1 up
+      if nextY == nowY - 1:
+         if nextX == nowX - 2 or nextX == nowX + 2:
+            if col != color:
+               return True
+            else:
+               return False
+         else:
+            return False
+
+      #if it moves 2 up
+      elif nextY == nowY - 2:
+         if nextX == nowX - 1 or nextX == nowX + 1:
+            if col != color:
+               return True
+            else:
+               return False
+         else:
+            return False
+
+      #if it moves 1 down
+      elif nextY == nowY + 1:
+         if nextX == nowX - 2 or nextX == nowX + 2:
+            if col != color:
+               return True
+            else:
+               return False
+         else:
+            return False
+
+      #if it moves 2 down
+      elif nextY == nowY + 2:
+         if nextX == nowX - 1 or nextX == nowX + 1:
+            if col != color:
+               return True
+            else:
+               return False
+         else:
+            return False
+      
+      #if the move is invalid
+      else:
+         return False
+
+
+   
+   #BISHOP
+   """
+   This method is for validating the bishop's move
+   """
+   def bishop_move(self, nowX, nowY, nextX, nextY, color, useCopyTable=False):
+      
+      #getting the different between the Ys
+      if nowY < nextY:
+         y = nextY - nowY
+      elif nowY > nextY:
+         y = nowY - nextY
+      else:
+         return False
+
+      #getting the different between the Xs
+      if nowX < nextX:
+         x = nextX - nowX
+      elif nowX > nextX:
+         x = nowX - nextX
+      else:
+         return False
+
+      #if the move is valid
+      if y == x:
+
+         #move down and left
+         if nextY > nowY and nextX < nowX:
+            y = nowY + 1
+            x = nowX - 1
+            while y != nextY and x != nextX:
+               if self.checkTable(x=x, y=y, returnCol=True, useCopyTable=useCopyTable) != "":
+                  return False
+               else:
+                  y += 1
+                  x -= 1
+            if self.checkTable(x=x, y=y, returnCol=True, useCopyTable=useCopyTable) != color:
+               return True
+            else:
+               return False
+         
+         #move down and right
+         elif nextY > nowY and nextX > nowX:
+            y = nowY + 1
+            x = nowX + 1
+            while y != nextY and x != nextX:
+               if self.checkTable(x=x, y=y, returnCol=True, useCopyTable=useCopyTable) != "":
+                  return False
+               else:
+                  y += 1
+                  x += 1
+            if self.checkTable( x=x, y=y, returnCol=True, useCopyTable=useCopyTable) != color:
+               return True
+            else:
+               return False
+         
+         #move up and left
+         elif nextY < nowY and nextX < nowX:
+            y = nowY - 1
+            x = nowX - 1
+            while y != nextY and x != nextX:
+               if self.checkTable(x=x, y=y, returnCol=True, useCopyTable=useCopyTable) != "":
+                  return False
+               else:
+                  y -= 1
+                  x -= 1
+            if self.checkTable(x=x, y=y, returnCol=True, useCopyTable=useCopyTable) != color:
+               return True
+            else:
+               return False
+         
+         #move up and right
+         elif nextY < nowY and nextX > nowX:
+            y = nowY - 1
+            x = nowX + 1
+            while y != nextY and x != nextX:
+               if self.checkTable(x=x, y=y, returnCol=True, useCopyTable=useCopyTable) != "":
+                  return False
+               else:
+                  y -= 1
+                  x += 1
+            if self.checkTable(x=x, y=y, returnCol=True, useCopyTable=useCopyTable) != color:
+               return True
+            else:
+               return False
+      
+      #if the move is invalid
+      else:
+         return False
+
+   
+   #QUEEN
+   """
+   This method is for validating the queen's move
+   """
+   def queen_move(self, nowX, nowY, nextX, nextY, color, useCopyTable=False):
+
+      #if the queen wants to move like a bishop
+      if self.bishop_move(nowX=nowX, nowY=nowY, nextX=nextX, nextY=nextY, color=color, useCopyTable=useCopyTable):
+         return True
+      
+      #if the queen wants to move like a rook
+      elif self.rook_move(nowX=nowX, nowY=nowY, nextX=nextX, nextY=nextY, color=color, useCopyTable=useCopyTable):
+         return True
+      
+      #if the move is invalid
+      else:
+         return False
+         
+   
+   #KING
+   """
+   This method is for validating the king's move
+   """
+   def king_move(self, nowX, nowY, nextX, nextY, color, useCopyTable=False):
+     
+      # if the king moves left or right
+      if (nextX == nowX - 1 or nextX == nowX + 1):
+         if nextY == nowY or nextY == nowY + 1 or nextY == nowY + 1:
+            if self.checkTable(x=nextX, y=nextY, returnCol=True, useCopyTable=useCopyTable) != color:
+               return True
+            else:
+               return False
+         else:
+            return False
+
+      #if the king wants to move up or down
+      elif nextX == nowX:
+         if nextY == nowY - 1 or nextY == nowY + 1:
+            if self.checkTable(x=nextX, y=nextY, returnCol=True, useCopyTable=useCopyTable) != color:
+               return True
+            else:
+               return False
+         else:
+            return False
+      
+      #if the move is invalid
+      else:
+         return False
 
    #These are kinds of error messages
    invalidInput = "HIBA: nem megfelelő paramétereket adott meg!"
@@ -8,7 +342,10 @@ class GameManadgement(Main, Figures):
    checkError = "HIBA: királyod jelenleg sakkban van, meg kell szüntetned ezt az állapotot!"
 
    #This function creates a new game
-   def __init__(self):
+   def __init__(self, player01, player02, color01, color02):
+
+      #setting up the two player names and their colors
+      self.players = dict(player01=player01, player02=player02, color01=color01, color02=color02)
 
       #Table
       """
@@ -211,7 +548,7 @@ class GameManadgement(Main, Figures):
                else:
 
                   #Checking the result of the move
-                  result = self.makeStep(self=self, nowPos=nowPos, nextPos=nextPos, playerColor=playerColor, useCopyTable=useCopy)
+                  result = self.makeStep(nowPos=nowPos, nextPos=nextPos, playerColor=playerColor, useCopyTable=useCopy)
          
                   #if an error occurs with the step
                   if bool(result):
@@ -245,10 +582,10 @@ class GameManadgement(Main, Figures):
          print("\n{} következik (színe: {}):".format(playerName, col))
          
          #if there is a check on the user's king
-         if self.checkForCheck(self=self, kingX=kingX, kingY=kingY, col=playerColor, useCopyTable=False):
+         if self.checkForCheck(kingX=kingX, kingY=kingY, col=playerColor, useCopyTable=False):
             
             #if it is checkmate
-            if self.checkForCheckmate(self=self, kingX=kingX, kingY=kingY, col=playerColor):
+            if self.checkForCheckmate(kingX=kingX, kingY=kingY, col=playerColor):
                
                #first print 50 lines to make the previous steps disappear
                for i in range(50):
@@ -275,10 +612,12 @@ class GameManadgement(Main, Figures):
                   #making the copies of the king's position
                   #it is used for updating the king's finaly position
                   if playerColor == "white":
+                     self.copyWhiteKing = dict()
                      self.copyWhiteKing["x"] = kingX
                      self.copyWhiteKing["y"] = kingY
 
                   elif playerColor == "black":
+                     self.copyBlackKing = dict()
                      self.copyBlackKing["x"] = kingX
                      self.copyBlackKing["y"] = kingY
                   
@@ -287,12 +626,13 @@ class GameManadgement(Main, Figures):
                   askPlayer(self=self, playerColor=playerColor, useCopy=True)
 
                   #if the check is over
-                  if not self.checkForCheck(self=self, kingX=kingX, kingY=kingY, col=playerColor, useCopyTable=True):
+                  if not self.checkForCheck(kingX=kingX, kingY=kingY, col=playerColor, useCopyTable=True):
                      #updating the king's final position
                      if playerColor == "white":
                         self.whiteKing["x"] = self.copyWhiteKing["x"]
                         self.whiteKing["y"] = self.copyWhiteKing["y"]
                         del self.copyWhiteKing
+                        
                      elif playerColor == "black":
                         self.blackKing["x"] = self.copyBlackKing["x"]
                         self.blackKing["y"] = self.copyBlackKing["y"]
@@ -349,13 +689,16 @@ class GameManadgement(Main, Figures):
 
          #looping through the self.copyTable
          for y in range(1,9):
-            for x in self.copyTable[y]:
+            for x in range(1,9):
+
+               #this is the value of the position
+               position = self.table[y][x]
 
                #if the position is not empty and it is not a placeholder
-               if x != "" and x not in self.placeholders:
+               if position != "" and position not in self.placeholders:
 
                   #getting the value of the position
-                  pos = re.split("_", x)
+                  pos = re.split("_", position)
 
                   #This sets the color of the opponent
                   #if the king's color is white
@@ -436,13 +779,16 @@ class GameManadgement(Main, Figures):
          
          #looping through the self.table
          for y in range(1,9):
-            for x in self.table[y]:
+            for x in range(1,9):
+
+               #this is the value of the position
+               position = self.table[y][x]
 
                #if the position is not empty and it isn't a placeholder
-               if x != "" and x not in self.placeholders:
+               if position != "" and position not in self.placeholders:
 
                   #getting the value of the position
-                  pos = re.split("_", x)
+                  pos = re.split("_", position)
 
                   #This sets the color of the user
                   #if the king's color is white
@@ -778,10 +1124,6 @@ class GameManadgement(Main, Figures):
    This method makes the change to the table / copyTable
    """
    def alterTable(self, nowX, nowY, nextX, nextY, col, fig, useCopyTable=False):
-      nowX = str(nowX)
-      nowY = str(nowY)
-      nextX = str(nextX)
-      nextY = str(nextY)
       if useCopyTable:
          self.copyTable[nowY][nowX] = ""
          self.copyTable[nextY][nextX] = col + "_" + fig
@@ -903,9 +1245,11 @@ class GameManadgement(Main, Figures):
                      #if the we used the copyTable
                      if useCopyTable:
                         if col == "black":
+                           self.copyBlackKing = dict()
                            self.copyBlackKing["x"] = nextX
                            self.copyBlackKing["y"] = nextY
                         elif col  == "white":
+                           self.copyWhiteKing = dict()
                            self.copyWhiteKing["x"] = nextX
                            self.copyWhiteKing["y"] = nextY
                      
