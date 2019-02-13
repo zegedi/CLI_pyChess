@@ -1,12 +1,11 @@
-from includes.gameRules import GameManadgement as Mg
-import re
+from includes.gameRules import GameManadgement #This one import the GameManadgement class
+import re #This one imports the re package
 
-class Figures(Mg):
+class Figures(GameManadgement):
 
    #PAWN
    """
    This method is for validating a pawn move
-    # BECSERÉLÉS MÉG KELL!!!!!!!!
    """
    def pawn_move(self, nowX, nowY, nextX, nextY, color, useCopyTable=False):
       
@@ -18,21 +17,21 @@ class Figures(Mg):
 
             #if it's a normal forward move
             if nextX == nowX:
-               if Mg.checkTable(x=nextX, y=nextY, returnCol=True, useCopyTable=useCopyTable) == "":
+               if self.checkTable(x=nextX, y=nextY, returnCol=True, useCopyTable=useCopyTable) == "":
                   return True
                else:
                   return False
 
             #if the pawn wants to kill
             elif (nextX == nowX -1) or (nextX == nowX + 1):
-               if Mg.checkTable(x=nextX, y=nextY, returnCol=True, useCopyTable=useCopyTable) == "black":
+               if self.checkTable(x=nextX, y=nextY, returnCol=True, useCopyTable=useCopyTable) == "white":
                   return True
                else:
                   return False
 
          #if this is the first move of the (2 steps forward)
          elif nowY == 2 and nextY == nowY + 2 and nowX == nextX:
-            if Mg.checkTable(x=nextX, y=nextY, returnCol=True, useCopyTable=useCopyTable) == "":
+            if self.checkTable(x=nextX, y=nextY, returnCol=True, useCopyTable=useCopyTable) == "":
                return True
             else:
                return False
@@ -50,21 +49,21 @@ class Figures(Mg):
             
             #if it's a normal forward move
             if nextX == nowX:
-               if Mg.checkTable(x=nextX, y=nextY, returnCol=True, useCopyTable=useCopyTable) == "":
+               if self.checkTable(x=nextX, y=nextY, returnCol=True, useCopyTable=useCopyTable) == "":
                   return True
                else:
                   return False
 
             #if the pawn wants to kill
             elif (nextX == nowX -1) or (nextX == nowX + 1):
-               if Mg.checkTable(x=nextX, y=nextY, returnCol=True, useCopyTable=useCopyTable) == "white":
+               if self.checkTable(x=nextX, y=nextY, returnCol=True, useCopyTable=useCopyTable) == "black":
                   return True
                else:
                   return False
 
          #if this is the first move of the (2 steps forward)
          elif nowY == 7 and nextY == nowY - 2 and nowX == nextX:
-            if Mg.checkTable(x=nextX, y=nextY, returnCol=True, useCopyTable=useCopyTable) == "":
+            if self.checkTable(x=nextX, y=nextY, returnCol=True, useCopyTable=useCopyTable) == "":
                return True
             else:
                return False
@@ -81,66 +80,58 @@ class Figures(Mg):
    """
    def rook_move(self, nowX, nowY, nextX, nextY, color, useCopyTable=False):
 
-      #rook moves down
+      #rook moves up
       if nowX == nextX and nowY > nextY:
-         y = nowY
+         y = nowY - 1
          while y != nextY:
             col = self.checkTable(x=nowX, y=y, returnCol=True, useCopyTable=useCopyTable)
             if bool(col):
                return False
             y -= 1
          col = self.checkTable(x=nowX, y=y, returnCol=True, useCopyTable=useCopyTable)
-         if color == "white" and col == "black":
-            return True
-         elif color == "black" and col == "white":
+         if color != col:
             return True
          else:
             return False
       
-      #rook moves up
+      #rook moves down
       elif nowX == nextX and nowY < nextY:
-         y = nowY
+         y = nowY + 1
          while y != nextY:
             col = self.checkTable(x=nowX, y=y, returnCol=True, useCopyTable=useCopyTable)
             if bool(col):
                return False
             y += 1
          col = self.checkTable(x=nowX, y=y, returnCol=True, useCopyTable=useCopyTable)
-         if color == "white" and col == "black":
-            return True
-         elif color == "black" and col == "white":
+         if color != col:
             return True
          else:
             return False
       
       #rook moves right
       elif nowY == nextY and nowX < nextX:
-         x = nowX
+         x = nowX + 1
          while x != nextY:
             col = self.checkTable(x=x, y=nowY, returnCol=True, useCopyTable=useCopyTable)
             if bool(col):
                return False
             x += 1
          col = self.checkTable(x=x, y=nowY, returnCol=True, useCopyTable=useCopyTable)
-         if color == "white" and col == "black":
-            return True
-         elif color == "black" and col == "white":
+         if color != col:
             return True
          else:
             return False
 
       #rook moves left
       elif nowY == nextY and nowX > nextX:
-         x = nowX
+         x = nowX - 1
          while x != nextY:
             col = self.checkTable(x=x, y=nowY, returnCol=True, useCopyTable=useCopyTable)
             if bool(col):
                return False
             x -= 1
          col = self.checkTable(x=x, y=nowY, returnCol=True, useCopyTable=useCopyTable)
-         if color == "white" and col == "black":
-            return True
-         elif color == "black" and col == "white":
+         if color != col:
             return True
          else:
             return False
@@ -152,15 +143,15 @@ class Figures(Mg):
 
    #KNIGHT
    """
-   This method is for validating the rook's move
+   This method is for validating the knight's move
    """
    def knight_move(self, nowX, nowY, nextX, nextY, color, useCopyTable=False):
       
       #gets the color ot the nextPosition field
-      col = Mg.checkTable(self, x=nextX, y=nextY, returnCol=True, useCopyTable=useCopyTable)
+      col = self.checkTable(self, x=nextX, y=nextY, returnCol=True, useCopyTable=useCopyTable)
 
       #validating the posible positions of the move
-      #if it moves 1 down
+      #if it moves 1 up
       if nextY == nowY - 1:
          if nextX == nowX - 2 or nextX == nowX + 2:
             if col != color:
@@ -170,7 +161,7 @@ class Figures(Mg):
          else:
             return False
 
-      #if it moves 2 down
+      #if it moves 2 up
       elif nextY == nowY - 2:
          if nextX == nowX - 1 or nextX == nowX + 1:
             if col != color:
@@ -180,7 +171,7 @@ class Figures(Mg):
          else:
             return False
 
-      #if it moves 1 up
+      #if it moves 1 down
       elif nextY == nowY + 1:
          if nextX == nowX - 2 or nextX == nowX + 2:
             if col != color:
@@ -190,7 +181,7 @@ class Figures(Mg):
          else:
             return False
 
-      #if it moves 2 up
+      #if it moves 2 down
       elif nextY == nowY + 2:
          if nextX == nowX - 1 or nextX == nowX + 1:
             if col != color:
@@ -230,64 +221,63 @@ class Figures(Mg):
 
       #if the move is valid
       if y == x:
-         
-         y = nowY
-         x = nowX
 
-         #if we want to use the copyTable
-         if useCopyTable:
-            useCopy = True
-         else:
-            useCopy = False
-
-         #move up and left
-         if nextY > nowY and nextX < nowX:
-            while y != nextY and x != nextX:
-               if Mg.checkTable(self, x=x, y=y, returnCol=True, useCopyTable=useCopy) != "":
-                  return False
-               else:
-                  y += 1
-                  x -= 1
-            if Mg.checkTable(self, x=x, y=y, returnCol=True, useCopyTable=useCopy) != color:
-               return True
-            else:
-               return False
-         
-         #move up and right
-         elif nextY > nowY and nextX > nowX:
-            while y != nextY and x != nextX:
-               if Mg.checkTable(self, x=x, y=y, returnCol=True, useCopyTable=useCopy) != "":
-                  return False
-               else:
-                  y += 1
-                  x += 1
-            if Mg.checkTable(self, x=x, y=y, returnCol=True, useCopyTable=useCopy) != color:
-               return True
-            else:
-               return False
-         
          #move down and left
-         elif nextY < nowY and nextX < nowX:
+         if nextY > nowY and nextX < nowX:
+            y = nowY + 1
+            x = nowX - 1
             while y != nextY and x != nextX:
-               if Mg.checkTable(self, x=x, y=y, returnCol=True, useCopyTable=useCopy) != "":
+               if self.checkTable(self, x=x, y=y, returnCol=True, useCopyTable=useCopyTable) != "":
                   return False
                else:
-                  y -= 1
+                  y += 1
                   x -= 1
-            if Mg.checkTable(self, x=x, y=y, returnCol=True, useCopyTable=useCopy) != color:
+            if self.checkTable(self, x=x, y=y, returnCol=True, useCopyTable=useCopyTable) != color:
                return True
             else:
                return False
          
          #move down and right
-         elif nextY < nowY and nextX > nowX:
+         elif nextY > nowY and nextX > nowX:
+            y = nowY + 1
+            x = nowX + 1
             while y != nextY and x != nextX:
-               if Mg.checkTable(self, x=x, y=y, returnCol=True, useCopyTable=useCopy) != "":
+               if self.checkTable(self, x=x, y=y, returnCol=True, useCopyTable=useCopyTable) != "":
+                  return False
+               else:
+                  y += 1
+                  x += 1
+            if self.checkTable(self, x=x, y=y, returnCol=True, useCopyTable=useCopyTable) != color:
+               return True
+            else:
+               return False
+         
+         #move up and left
+         elif nextY < nowY and nextX < nowX:
+            y = nowY - 1
+            x = nowX - 1
+            while y != nextY and x != nextX:
+               if self.checkTable(self, x=x, y=y, returnCol=True, useCopyTable=useCopyTable) != "":
+                  return False
+               else:
+                  y -= 1
+                  x -= 1
+            if self.checkTable(self, x=x, y=y, returnCol=True, useCopyTable=useCopyTable) != color:
+               return True
+            else:
+               return False
+         
+         #move up and right
+         elif nextY < nowY and nextX > nowX:
+            y = nowY - 1
+            x = nowX + 1
+            while y != nextY and x != nextX:
+               if self.checkTable(self, x=x, y=y, returnCol=True, useCopyTable=useCopyTable) != "":
                   return False
                else:
                   y -= 1
                   x += 1
-            if Mg.checkTable(self, x=x, y=y, returnCol=True, useCopyTable=useCopy) != color:
+            if self.checkTable(self, x=x, y=y, returnCol=True, useCopyTable=useCopyTable) != color:
                return True
             else:
                return False
@@ -304,11 +294,11 @@ class Figures(Mg):
    def queen_move(self, nowX, nowY, nextX, nextY, color, useCopyTable=False):
 
       #if the queen wants to move like a bishop
-      if self.bishop_move(self=self, nowX=nowX, nowY=nowY, nextX=nextX, nextY=nextY, color=color, useCopyTable=useCopyTable):
+      if self.bishop_move(nowX=nowX, nowY=nowY, nextX=nextX, nextY=nextY, color=color, useCopyTable=useCopyTable):
          return True
       
       #if the queen wants to move like a rook
-      elif self.rook_move(self=self, nowX=nowX, nowY=nowY, nextX=nextX, nextY=nextY, color=color, useCopyTable=useCopyTable):
+      elif self.rook_move(nowX=nowX, nowY=nowY, nextX=nextX, nextY=nextY, color=color, useCopyTable=useCopyTable):
          return True
       
       #if the move is invalid
@@ -325,7 +315,7 @@ class Figures(Mg):
       # if the king moves left or right
       if (nextX == nowX - 1 or nextX == nowX + 1):
          if nextY == nowY or nextY == nowY + 1 or nextY == nowY + 1:
-            if Mg.checkTable(self, x=nextX, y=nextY, returnCol=True, useCopyTable=useCopyTable) != color:
+            if self.checkTable(self, x=nextX, y=nextY, returnCol=True, useCopyTable=useCopyTable) != color:
                return True
             else:
                return False
@@ -335,7 +325,7 @@ class Figures(Mg):
       #if the king wants to move up or down
       elif nextX == nowX:
          if nextY == nowY - 1 or nextY == nowY + 1:
-            if Mg.checkTable(self, x=nextX, y=nextY, returnCol=True, useCopyTable=useCopyTable) != color:
+            if self.checkTable(self, x=nextX, y=nextY, returnCol=True, useCopyTable=useCopyTable) != color:
                return True
             else:
                return False
