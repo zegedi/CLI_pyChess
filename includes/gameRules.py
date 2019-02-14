@@ -336,6 +336,16 @@ class GameManadgement():
       else:
          return False
 
+
+
+
+
+   #These are the methods dealing with the game
+   """
+   #####################################################################################################################################
+   """
+
+
    #These are kinds of error messages
    invalidInput = "HIBA: nem megfelelő paramétereket adott meg!"
    stepError = "HIBA: nem lehet a megadott lépést elvégezni!"
@@ -355,21 +365,39 @@ class GameManadgement():
        * The table's elements are the columns [ Y ]
        * The elements's elements are the rows [ X ]
       """
+      """
       self.table = [
-         ("1","2","3","4","5","6","7","8"), #These are the row names
-         ["A", "black_rook","black_knight","black_bishop","black_queen","black_king","black_bishop","black_knight","black_rook"],
-         ["B", "black_pawn","black_pawn","black_pawn","black_pawn","black_pawn","black_pawn","black_pawn","black_pawn"],
-         ["C", "","","","","","","",""],
-         ["D", "","","","","","","",""],
-         ["E", "","","","","","","",""],
-         ["F", "","","","","","","",""],
-         ["G", "white_pawn","white_pawn","white_pawn","white_pawn","white_pawn","white_pawn","white_pawn","white_pawn"],
-         ["H", "white_rook","white_knight","white_bishop","white_queen","white_king","white_bishop","white_knight","white_rook"]
+         ("A","B","C","D","E","F","G","G"), #These are the row names
+         ["1", "black_rook","black_knight","black_bishop","black_queen","black_king","black_bishop","black_knight","black_rook"],
+         ["2", "black_pawn","black_pawn","black_pawn","black_pawn","black_pawn","black_pawn","black_pawn","black_pawn"],
+         ["3", "","","","","","","",""],
+         ["4", "","","","","","","",""],
+         ["5", "","","","","","","",""],
+         ["6", "","","","","","","",""],
+         ["7", "white_pawn","white_pawn","white_pawn","white_pawn","white_pawn","white_pawn","white_pawn","white_pawn"],
+         ["8", "white_rook","white_knight","white_bishop","white_queen","white_king","white_bishop","white_knight","white_rook"],
+         ("A","B","C","D","E","F","G","G")
       ]
+      """
+      self.table = [
+         ["A","B","C","D","E","F","G","G"], #These are the row names
+         ["1", "black_rook","","","black_queen","black_king","black_bishop","black_knight","black_rook"],
+         ["2", "black_pawn","black_pawn","black_pawn","","","black_pawn","black_pawn","black_pawn"],
+         ["3", "","","black_knight","black_pawn","","","",""],
+         ["4", "","","","","white_knight","","",""],
+         ["5", "","","white_bishop","","white_pawn","","black_pawn",""],
+         ["6", "","","white_knight","","","","",""],
+         ["7", "white_pawn","white_pawn","white_pawn","white_pawn","","white_pawn","white_pawn","white_pawn"],
+         ["8", "white_rook","","white_bishop","white_queen","white_king","","","white_rook"],
+         ["A","B","C","D","E","F","G","G"]
+      ]
+
+
+      self.copyTable = self.table.copy()
 
       #These are the possible placeholders
       #These are on index 0 in the table's rows
-      self.placeholders = ["A","B","C","D","E","F","G","H"]
+      self.placeholders = ["1","2","3","4","5","6","7","8"]
 
 
       #King positions
@@ -379,8 +407,8 @@ class GameManadgement():
       * These must be updated when the king moves
       * The type of the X and Y must be in an integer
       """
-      self.blackKing = {"x": 1, "y": 5}
-      self.whiteKing = {"x": 8, "y": 5}
+      self.blackKing = {"x": 5, "y": 1}
+      self.whiteKing = {"x": 5, "y": 8}
 
 
       #finally invoking the playerMove method
@@ -411,24 +439,8 @@ class GameManadgement():
          #looping through the columns of the table
          for y in range(len(self.table)):
 
-            #if it is the first line
-            if y == 0:
-               for x in range(len(self.table[y])):
-
-                  if x == 0:
-                     print("\n" + fiveSpace, end="")
-
-                  print(" " + self.table[y][x].center(12), end="")
-
-               else:
-                  print("\n" + fiveSpace, end="")
-                  for i in range(105):
-                     print("#", end="")
-                  else:
-                     print("")
-
-            #if it is not the first line (the table is coming)
-            else:
+            #if it's not the first and last line
+            if y != 0 and y != len(self.table) - 1:
 
                #printing the first two lines
                for i in range(1):
@@ -469,7 +481,7 @@ class GameManadgement():
 
                   #if we reach the end of the line
                   else:
-                     print("#")
+                     print("#" + self.table[y][0].center(5))
                
                #then is prints the name of the figures
                else:
@@ -526,6 +538,31 @@ class GameManadgement():
                      print("#", end="")
                   else:
                      print("")
+
+
+            #if it is the first and last line
+            else:
+               
+               #printing the column number
+               for x in range(len(self.table[y])):
+
+                  if x == 0:
+                     print(fiveSpace, end="")
+
+                  print(" " + self.table[y][x].center(12), end="")
+
+               else:
+
+                  #if it is the table's first column
+                  if y == 0:
+
+                     #printing a row of #s
+                     print("\n" + fiveSpace, end="")
+                     for i in range(105):
+                        print("#", end="")
+                     else:
+                        print("")
+
       
       #This method asks for the input
       def askPlayer(self, playerColor, useCopy=False):
@@ -579,7 +616,7 @@ class GameManadgement():
             col = "fekete"
 
          #printing who's next
-         print("\n{} következik (színe: {}):".format(playerName, col))
+         print("\n\n{} következik (színe: {}):".format(playerName, col))
          
          #if there is a check on the user's king
          if self.checkForCheck(kingX=kingX, kingY=kingY, col=playerColor, useCopyTable=False):
@@ -604,10 +641,12 @@ class GameManadgement():
 
             #if it's a normal check
             else:
-
-               #making the copyTable
-               self.copyTable = self.table.copy()
+               
                while True:
+
+                  #making the copyTable
+                  self.copyTable.clear()
+                  self.copyTable = self.table.copy()
 
                   #making the copies of the king's position
                   #it is used for updating the king's finaly position
@@ -622,11 +661,12 @@ class GameManadgement():
                      self.copyBlackKing["y"] = kingY
                   
                   #letting the user know that his king is in a check position
-                  print("Sakkot kaptál! Meg kell szüntetned ezt az állapotot!")
+                  print("\nSakkot kaptál! Meg kell szüntetned ezt az állapotot!")
                   askPlayer(self=self, playerColor=playerColor, useCopy=True)
 
                   #if the check is over
                   if not self.checkForCheck(kingX=kingX, kingY=kingY, col=playerColor, useCopyTable=True):
+                     
                      #updating the king's final position
                      if playerColor == "white":
                         self.whiteKing["x"] = self.copyWhiteKing["x"]
@@ -641,7 +681,6 @@ class GameManadgement():
                      #updating the self.table
                      self.table.clear()
                      self.table = self.copyTable.copy()
-                     del self.copyTable
                      return True
          
          #if there is no check on the user's king
@@ -691,8 +730,10 @@ class GameManadgement():
          for y in range(1,9):
             for x in range(1,9):
 
+               #this one could change to self.copyTable
+               #this one could change to self.table
                #this is the value of the position
-               position = self.table[y][x]
+               position = self.copyTable[y][x]
 
                #if the position is not empty and it is not a placeholder
                if position != "" and position not in self.placeholders:
@@ -703,15 +744,15 @@ class GameManadgement():
                   #This sets the color of the opponent
                   #if the king's color is white
                   if col == "white" and pos[0] == "black":
-                     userColor = "black"
+                     opponentColor = "black"
                   #if the king's color is black
                   elif col == "black" and pos[0] == "white":
-                     userColor = "white"
+                     opponentColor = "white"
 
                   #Checking the possible enemy moves againts the king
                   if pos[1] == "pawn" and pos[0] != col:
                      #if the pawn could take the king down
-                     if self.pawn_move(nowX=int(x), nowY=int(y), nextX=kingX, nextY=kingY, color=userColor, useCopyTable=useCopyTable):
+                     if self.pawn_move(nowX=int(x), nowY=int(y), nextX=kingX, nextY=kingY, color=opponentColor, useCopyTable=useCopyTable):
                         #validating what to return
                         if returnCheckerPos:
                            checkerPos = {"x": int(x), "y": int(y)}
@@ -721,7 +762,7 @@ class GameManadgement():
                
                   elif pos[1] == "rook" and pos[0] != col:
                      #if the rook could take the king down
-                     if self.rook_move(nowX=int(x), nowY=int(y), nextX=kingX, nextY=kingY, color=userColor, useCopyTable=useCopyTable):
+                     if self.rook_move(nowX=int(x), nowY=int(y), nextX=kingX, nextY=kingY, color=opponentColor, useCopyTable=useCopyTable):
                         #validating what to return
                         if returnCheckerPos:
                            checkerPos = {"x": int(x), "y": int(y)}
@@ -731,7 +772,7 @@ class GameManadgement():
                   
                   elif pos[1] == "knight" and pos[0] != col:
                      #if the knight could take the king down
-                     if self.knight_move(nowX=int(x), nowY=int(y), nextX=kingX, nextY=kingY, color=userColor, useCopyTable=useCopyTable):
+                     if self.knight_move(nowX=int(x), nowY=int(y), nextX=kingX, nextY=kingY, color=opponentColor, useCopyTable=useCopyTable):
                         #validating what to return
                         if returnCheckerPos:
                            checkerPos = {"x": int(x), "y": int(y)}
@@ -741,7 +782,7 @@ class GameManadgement():
                   
                   elif pos[1] == "bishop" and pos[0] != col:
                      #if the bishop could take the king down
-                     if self.bishop_move(nowX=int(x), nowY=int(y), nextX=kingX, nextY=kingY, color=userColor, useCopyTable=useCopyTable):
+                     if self.bishop_move(nowX=int(x), nowY=int(y), nextX=kingX, nextY=kingY, color=opponentColor, useCopyTable=useCopyTable):
                         #validating what to return
                         if returnCheckerPos:
                            checkerPos = {"x": int(x), "y": int(y)}
@@ -751,7 +792,7 @@ class GameManadgement():
                   
                   elif pos[1] == "queen" and pos[0] != col:
                      #if the queen could take the king down
-                     if self.queen_move(nowX=int(x), nowY=int(y), nextX=kingX, nextY=kingY, color=userColor, useCopyTable=useCopyTable):
+                     if self.queen_move(nowX=int(x), nowY=int(y), nextX=kingX, nextY=kingY, color=opponentColor, useCopyTable=useCopyTable):
                         #validating what to return
                         if returnCheckerPos:
                            checkerPos = {"x": int(x), "y": int(y)}
@@ -761,7 +802,7 @@ class GameManadgement():
                   
                   elif pos[1] == "king" and pos[0] != col:
                      #if the king could take the king down
-                     if self.king_move(nowX=int(x), nowY=int(y), nextX=kingX, nextY=kingY, color=userColor, useCopyTable=useCopyTable):
+                     if self.king_move(nowX=int(x), nowY=int(y), nextX=kingX, nextY=kingY, color=opponentColor, useCopyTable=useCopyTable):
                         #validating what to return
                         if returnCheckerPos:
                            checkerPos = {"x": int(x), "y": int(y)}
@@ -793,15 +834,16 @@ class GameManadgement():
                   #This sets the color of the user
                   #if the king's color is white
                   if col == "white" and pos[0] == "black":
-                     userColor = "black"
+                     opponentColor = "black"
+                  
                   #if the king's color is black
                   elif col == "black" and pos[0] == "white":
-                     userColor = "white"
+                     opponentColor = "white"
 
                   #Checking the possible enemy moves againts the king
                   if pos[1] == "pawn" and pos[0] != col:
                      #if the pawn could take the king down
-                     if self.pawn_move(nowX=int(x), nowY=int(y), nextX=kingX, nextY=kingY, color=userColor, useCopyTable=useCopyTable):
+                     if self.pawn_move(nowX=int(x), nowY=int(y), nextX=kingX, nextY=kingY, color=opponentColor, useCopyTable=useCopyTable):
                         #validating what to return
                         if returnCheckerPos:
                            checkerPos = {"x": int(x), "y": int(y)}
@@ -811,7 +853,7 @@ class GameManadgement():
                
                   elif pos[1] == "rook" and pos[0] != col:
                      #if the rook could take the king down
-                     if self.rook_move(nowX=int(x), nowY=int(y), nextX=kingX, nextY=kingY, color=userColor, useCopyTable=useCopyTable):
+                     if self.rook_move(nowX=int(x), nowY=int(y), nextX=kingX, nextY=kingY, color=opponentColor, useCopyTable=useCopyTable):
                         #validating what to return
                         if returnCheckerPos:
                            checkerPos = {"x": int(x), "y": int(y)}
@@ -821,7 +863,7 @@ class GameManadgement():
                   
                   elif pos[1] == "knight" and pos[0] != col:
                      #if the knight could take the king down
-                     if self.knight_move(nowX=int(x), nowY=int(y), nextX=kingX, nextY=kingY, color=userColor, useCopyTable=useCopyTable):
+                     if self.knight_move(nowX=int(x), nowY=int(y), nextX=kingX, nextY=kingY, color=opponentColor, useCopyTable=useCopyTable):
                         #validating what to return
                         if returnCheckerPos:
                            checkerPos = {"x": int(x), "y": int(y)}
@@ -831,7 +873,7 @@ class GameManadgement():
                   
                   elif pos[1] == "bishop" and pos[0] != col:
                      #if the bishop could take the king down
-                     if self.bishop_move(nowX=int(x), nowY=int(y), nextX=kingX, nextY=kingY, color=userColor, useCopyTable=useCopyTable):
+                     if self.bishop_move(nowX=int(x), nowY=int(y), nextX=kingX, nextY=kingY, color=opponentColor, useCopyTable=useCopyTable):
                         #validating what to return
                         if returnCheckerPos:
                            checkerPos = {"x": int(x), "y": int(y)}
@@ -841,7 +883,7 @@ class GameManadgement():
                   
                   elif pos[1] == "queen" and pos[0] != col:
                      #if the queen could take the king down
-                     if self.queen_move(nowX=int(x), nowY=int(y), nextX=kingX, nextY=kingY, color=userColor, useCopyTable=useCopyTable):
+                     if self.queen_move(nowX=int(x), nowY=int(y), nextX=kingX, nextY=kingY, color=opponentColor, useCopyTable=useCopyTable):
                         #validating what to return
                         if returnCheckerPos:
                            checkerPos = {"x": int(x), "y": int(y)}
@@ -851,7 +893,7 @@ class GameManadgement():
                   
                   elif pos[1] == "king" and pos[0] != col:
                      #if the king could take the king down
-                     if self.king_move(nowX=int(x), nowY=int(y), nextX=kingX, nextY=kingY, color=userColor, useCopyTable=useCopyTable):
+                     if self.king_move(nowX=int(x), nowY=int(y), nextX=kingX, nextY=kingY, color=opponentColor, useCopyTable=useCopyTable):
                         #validating what to return
                         if returnCheckerPos:
                            checkerPos = {"x": int(x), "y": int(y)}
@@ -908,7 +950,7 @@ class GameManadgement():
             
                #if the king is safe with that move ==> the game is not over yet
                if not self.checkForCheck(kingX=nextX, kingY=nextY, col=col, useCopyTable=True):
-                  del self.copyTable
+                  self.copyTable.clear()
                   return False
 
 
@@ -925,11 +967,10 @@ class GameManadgement():
          if col == "white":
             enemyCol = "black"
          elif col == "black":
-            enemyCol == "white"
+            enemyCol = "white"
 
          #checking if one of the user's figure could take the checker down
          if self.checkForCheck(kingX=pos["x"], kingY=pos["y"], col=enemyCol, useCopyTable=True):
-            del self.copyTable
             return False
 
 
@@ -985,12 +1026,10 @@ class GameManadgement():
                #validating if any of the user's figures could get between it's king and the checker
                for i in range(len(steps)):
                   if self.checkForCheck(kingX=steps[i]["x"], kingY=steps[i]["y"], col=col, useCopyTable=True):
-                     del self.copyTable
                      return False
                
                #else it is a checkmate (game over)
                else:
-                  del self.copyTable
                   return True
 
             #if the opponent's figure is checking our king via a bishop_move
@@ -1041,17 +1080,14 @@ class GameManadgement():
                #validating if any of the user's figures could get between it's king and the checker
                for i in range(len(steps)):
                   if self.checkForCheck(kingX=steps[i]["x"], kingY=steps[i]["y"], col=col, useCopyTable=True):
-                     del self.copyTable
                      return False
 
                #else it is a checkmate (game over)
                else:
-                  del self.copyTable
                   return True
             
             #else it is a checkmate (game over)
             else:
-               del self.copyTable
                return True
 
 
@@ -1103,6 +1139,9 @@ class GameManadgement():
       #If we want to get the FIGURE
       elif returnFig:
          if len(pos) > 0:
+            #print(pos)
+            print("y: {}, x: {}".format(y, x))
+            print(self.table[y+1][x])
             return pos[1]
          else:
             return ""
@@ -1112,11 +1151,12 @@ class GameManadgement():
    """
    This method maps the letter form position input to numbers.
    """
-   def mapNumberToY(self, letter):
+   def mapNumberToX(self, letter):
       abc = {"a": 1, "b": 2, "c": 3, "d": 4, "e": 5, "f": 6, "g": 7, "h": 8}
       for y, value in abc.items():
          if letter == y:
             return value
+
 
 
    #This function alters the table if a move could go down
@@ -1143,7 +1183,7 @@ class GameManadgement():
 
       #Getting the user's input
       a = re.search("[a-h]", nowPos) #nowColumn
-      b = re.search("[1-8]", nowPos) #nowRow
+      b = re.search("[1-8]", nowPos) #nextRow
       c = re.search("[a-h]", nextPos) #nextColumn
       d = re.search("[1-8]", nextPos) #nextRow
 
@@ -1157,10 +1197,10 @@ class GameManadgement():
       else:
 
          #Converting the user's input
-         nowY = int(self.mapNumberToY(a.group()))
-         nowX = int(b.group())
-         nextY = int(self.mapNumberToY(c.group()))
-         nextX = int(d.group())
+         nowX = int(self.mapNumberToX(a.group()))
+         nowY = int(b.group())
+         nextX = int(self.mapNumberToX(c.group()))
+         nextY = int(d.group())
 
          #If the starting and ending position is the same
          if nowX == nextX and nowY == nextY:
@@ -1168,8 +1208,8 @@ class GameManadgement():
          
          else:
             #These variables would hold the user's figurename and the it's color
-            fig = self.checkTable(x=nowX, y=nowY, returnFig=True)
-            col = self.checkTable(x=nowX, y=nowY, returnCol=True)
+            fig = self.checkTable(x=nowX, y=nowY, returnFig=True, useCopyTable=useCopyTable)
+            col = self.checkTable(x=nowX, y=nowY, returnCol=True, useCopyTable=useCopyTable)
             
             #This method deals with the pawn
             if fig == "pawn" and playerColor == col:
