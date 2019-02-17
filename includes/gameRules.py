@@ -1,4 +1,5 @@
 from random import randint
+from copy import deepcopy
 import re
 
 class GameManadgement():
@@ -365,7 +366,6 @@ class GameManadgement():
        * The table's elements are the columns [ Y ]
        * The elements's elements are the rows [ X ]
       """
-      """
       self.table = [
          ("A","B","C","D","E","F","G","G"), #These are the row names
          ["1", "black_rook","black_knight","black_bishop","black_queen","black_king","black_bishop","black_knight","black_rook"],
@@ -378,22 +378,9 @@ class GameManadgement():
          ["8", "white_rook","white_knight","white_bishop","white_queen","white_king","white_bishop","white_knight","white_rook"],
          ("A","B","C","D","E","F","G","G")
       ]
-      """
-      self.table = [
-         ["A","B","C","D","E","F","G","G"], #These are the row names
-         ["1", "black_rook","","","black_queen","black_king","black_bishop","black_knight","black_rook"],
-         ["2", "black_pawn","black_pawn","black_pawn","","","black_pawn","black_pawn","black_pawn"],
-         ["3", "","","black_knight","black_pawn","","","",""],
-         ["4", "","","","","white_knight","","",""],
-         ["5", "","","white_bishop","","white_pawn","","black_pawn",""],
-         ["6", "","","white_knight","","","","",""],
-         ["7", "white_pawn","white_pawn","white_pawn","white_pawn","","white_pawn","white_pawn","white_pawn"],
-         ["8", "white_rook","","white_bishop","white_queen","white_king","","","white_rook"],
-         ["A","B","C","D","E","F","G","G"]
-      ]
 
-
-      self.copyTable = self.table.copy()
+      #This is the copy of the table
+      self.copyTable = deepcopy(self.table)
 
       #These are the possible placeholders
       #These are on index 0 in the table's rows
@@ -403,18 +390,19 @@ class GameManadgement():
       #King positions
       """
       These properties are holding the current positions of the kings
-      # The program also uses two variants of these in some of the methods (copyBlackKingX && copyBlackKingY || copyWhiteKingX && copyWhiteKingY)
+      # The program also uses two variants of these in some of the methods (copyBlackKing || copyWhiteKing)
       * These must be updated when the king moves
       * The type of the X and Y must be in an integer
       """
       self.blackKing = {"x": 5, "y": 1}
       self.whiteKing = {"x": 5, "y": 8}
+      self.copyBlackKing = dict()
+      self.copyWhiteKing = dict()
 
 
       #finally invoking the playerMove method
-      #This will also return True is the game is over
-      #return self.playerMove()
       self.playerMove()
+
 
 
    #PlayerMove method
@@ -428,8 +416,8 @@ class GameManadgement():
       This code deals with the table printing
       """
       def printTable(self):
-         #first we print 50 lines the make the previos steps disappear
-         for i in range(50):
+         #first we print 40 lines the make the previos steps disappear
+         for i in range(40):
             print("")
 
          #these variables hold spaces
@@ -465,9 +453,9 @@ class GameManadgement():
 
                         #setting the color to hungarian
                         if col == "black":
-                           col = "Fekete"
+                           col = "FEKETE"
                         elif col == "white":
-                           col = "Fehér"
+                           col = "fehér"
                         
                         print("#" + col.center(12), end="")
 
@@ -493,21 +481,45 @@ class GameManadgement():
                      if pos != "" and pos not in self.placeholders:
                         
                         position = re.split("_", pos)
+                        col = position[0]
                         fig = position[1]
 
                         #setting the figure to hungarian
                         if fig == "pawn":
-                           fig = "Paraszt"
+                           if col == "black":
+                              fig = "PARASZT"
+                           else:
+                              fig = "paraszt"
+                        
                         elif fig == "rook":
-                           fig = "Bástya"
+                           if col == "black":
+                              fig = "BÁSTYA"
+                           else:
+                              fig = "bástya"
+                        
                         elif fig == "knight":
-                           fig = "Ló"
+                           if col == "black":
+                              fig = "LÓ"
+                           else:
+                              fig = "ló"
+                        
                         elif fig == "bishop":
-                           fig = "Futó"
+                           if col == "black":
+                              fig = "FUTÓ"
+                           else:
+                              fig = "futó"
+                        
                         elif fig == "queen":
-                           fig = "Királynő"
+                           if col == "black":
+                              fig = "KIRÁLYNŐ"
+                           else:
+                              fig = "királynő"
+                        
                         elif fig == "king":
-                           fig = "Király"
+                           if col == "black":
+                              fig = "KIRÁLY"
+                           else:
+                              fig = "király"
                         
                         print("#" + fig.center(12), end="")
 
@@ -600,24 +612,20 @@ class GameManadgement():
 
                   
       #This method deals with the next player
-      def nextPlayer(self, playerName, playerColor):
+      def nextPlayer(self, playerName, playerColor, otherPlayer, otherColor):
 
-         #Printing the table
-         printTable(self=self)
-
-         #Validating the king's color
+         #Validating the king's color and setting up the kingX and kingY for checking
          if playerColor == "white":
             kingX = self.whiteKing["x"]
             kingY = self.whiteKing["y"] 
             col = "fehér"
+            otherCol = "fekete"
          elif playerColor == "black":
             kingX = self.blackKing["x"]
             kingY = self.blackKing["y"] 
             col = "fekete"
+            otherCol = "fehér"
 
-         #printing who's next
-         print("\n\n{} következik (színe: {}):".format(playerName, col))
-         
          #if there is a check on the user's king
          if self.checkForCheck(kingX=kingX, kingY=kingY, col=playerColor, useCopyTable=False):
             
@@ -625,7 +633,7 @@ class GameManadgement():
             if self.checkForCheckmate(kingX=kingX, kingY=kingY, col=playerColor):
                
                #first print 50 lines to make the previous steps disappear
-               for i in range(50):
+               for i in range(60):
                   print("")
 
                #creating the gameOver filename
@@ -636,7 +644,7 @@ class GameManadgement():
                   print(f.read())
 
                #printing the final result and returning True to indicate this is the end of the game
-               print("\nA győztes: {} (színe: {})\nGratulálunk a győzelemhez!\n".format(playerName, playerColor))
+               print("\nA győztes: {} (színe: {})\nGratulálunk a győzelemhez!\n".format(otherPlayer, otherCol))
                return False
 
             #if it's a normal check
@@ -644,25 +652,30 @@ class GameManadgement():
                
                while True:
 
-                  #making the copyTable
-                  self.copyTable.clear()
-                  self.copyTable = self.table.copy()
+                  #creating the copyTable
+                  self.copyTable = deepcopy(self.table)
+
+                  #Printing the table
+                  printTable(self=self)
+
+                  #printing who's next
+                  print("\n\n{} következik (színe: {}):".format(playerName, col))
+                  
+                  #letting the user know that his king is in a check position
+                  print("\n Sakkot kaptál! Meg kell szüntetned ezt az állapotot!")
+                  askPlayer(self=self, playerColor=playerColor, useCopy=True)
 
                   #making the copies of the king's position
                   #it is used for updating the king's finaly position
                   if playerColor == "white":
-                     self.copyWhiteKing = dict()
-                     self.copyWhiteKing["x"] = kingX
-                     self.copyWhiteKing["y"] = kingY
+                     kingX = self.copyWhiteKing["x"]
+                     kingY = self.copyWhiteKing["y"]
+                     print(self.copyWhiteKing)
 
                   elif playerColor == "black":
-                     self.copyBlackKing = dict()
-                     self.copyBlackKing["x"] = kingX
-                     self.copyBlackKing["y"] = kingY
-                  
-                  #letting the user know that his king is in a check position
-                  print("\nSakkot kaptál! Meg kell szüntetned ezt az állapotot!")
-                  askPlayer(self=self, playerColor=playerColor, useCopy=True)
+                     kingX = self.copyBlackKing["x"]
+                     kingY = self.copyBlackKing["y"]
+                     print(self.copyBlackKing)
 
                   #if the check is over
                   if not self.checkForCheck(kingX=kingX, kingY=kingY, col=playerColor, useCopyTable=True):
@@ -679,12 +692,23 @@ class GameManadgement():
                         del self.copyBlackKing
 
                      #updating the self.table
-                     self.table.clear()
-                     self.table = self.copyTable.copy()
-                     return True
+                     self.table = deepcopy(self.copyTable)
+                     break
+                  
+
+               #return True to indicate the game is not over yet
+               return True
+
+                  
          
          #if there is no check on the user's king
          else:
+
+            #Printing the table
+            printTable(self=self)
+
+            #printing who's next
+            print("\n\n{} következik (színe: {}):".format(playerName, col))
             
             #asking the user for an input
             askPlayer(self=self, playerColor=playerColor, useCopy=False)
@@ -696,17 +720,17 @@ class GameManadgement():
 
          #WHITE PLAYER
          #if this is the end of the game
-         if not nextPlayer(self=self, playerName=self.players['player01'], playerColor=self.players['color01']):
+         if not nextPlayer(self=self, playerName=self.players['player01'], playerColor=self.players['color01'], otherPlayer=self.players['player02'], otherColor=self.players['color02']):
             break
 
          #BLACK PLAYER
          #if this is the end of the game
-         if not nextPlayer(self=self, playerName=self.players['player02'], playerColor=self.players['color02']):
+         if not nextPlayer(self=self, playerName=self.players['player02'], playerColor=self.players['color02'], otherPlayer=self.players['player01'], otherColor=self.players['color01']):
             break
 
 
       #finally when the game finished we return True
-      #return True
+      return True
 
 
 
@@ -930,14 +954,14 @@ class GameManadgement():
       ]
 
       #looping through the possible columns
-      for p in possibleKingMove:
+      for p in range(len(possibleKingMove)):
 
          #creating the copyTable
-         self.copyTable = self.table.copy()
+         self.copyTable = deepcopy(self.table)
          
          #creating the next possible positions
-         nextX = p["x"]
-         nextY = p["y"]
+         nextX = possibleKingMove[p]["x"]
+         nextY = possibleKingMove[p]["y"]
 
          #if the possible position is on the table
          if (nextX >= 1 and nextX <= 8) and (nextY >= 1 and nextY <= 8):
@@ -950,7 +974,7 @@ class GameManadgement():
             
                #if the king is safe with that move ==> the game is not over yet
                if not self.checkForCheck(kingX=nextX, kingY=nextY, col=col, useCopyTable=True):
-                  self.copyTable.clear()
+                  del self.copyTable
                   return False
 
 
@@ -958,7 +982,7 @@ class GameManadgement():
       else:
 
          #creating the copyTable
-         self.copyTable = self.table.copy()
+         self.copyTable = deepcopy(self.table)
 
          #getting the checker's position (the figure who's checking our king) 
          pos = self.checkForCheck(kingX=kingX, kingY=kingY, col=col, returnCheckerPos=True, useCopyTable=True)
@@ -978,7 +1002,7 @@ class GameManadgement():
          else:
 
             #creating the copyTable
-            self.copyTable = self.table.copy()
+            self.copyTable = deepcopy(self.table)
 
             #this will hold the positions from the checker to the king
             steps = []
@@ -1139,9 +1163,6 @@ class GameManadgement():
       #If we want to get the FIGURE
       elif returnFig:
          if len(pos) > 0:
-            #print(pos)
-            print("y: {}, x: {}".format(y, x))
-            print(self.table[y+1][x])
             return pos[1]
          else:
             return ""
@@ -1221,19 +1242,19 @@ class GameManadgement():
                         ans = input("Mire cseréljem be a parasztot? [bástya, futó, ló, királynő]: ").strip().lower()
                         #translating the input to figures
                         if ans == "királynő":
-                           fig == "queen"
+                           fig = "queen"
                            break
                         elif ans == "bástya":
-                           fig == "rook"
+                           fig = "rook"
                            break
                         elif ans == "futó":
-                           fig == "bishop"
+                           fig = "bishop"
                            break
                         elif ans == "ló":
-                           fig == "knight"
+                           fig = "knight"
                            break
                         else:
-                           print("HIBA: nincs ilyen figura az opciók között!")
+                           print(" HIBA: nincs ilyen figura az opciók között!")
 
                   #it makes the change to the table
                   self.alterTable(nowX=nowX, nowY=nowY, nextX=nextX, nextY=nextY, col=col, fig=fig, useCopyTable=useCopyTable)
@@ -1285,11 +1306,9 @@ class GameManadgement():
                      #if the we used the copyTable
                      if useCopyTable:
                         if col == "black":
-                           self.copyBlackKing = dict()
                            self.copyBlackKing["x"] = nextX
                            self.copyBlackKing["y"] = nextY
                         elif col  == "white":
-                           self.copyWhiteKing = dict()
                            self.copyWhiteKing["x"] = nextX
                            self.copyWhiteKing["y"] = nextY
                      

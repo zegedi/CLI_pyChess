@@ -1,4 +1,5 @@
 testProgram.py
 table.txt
+__pycache__
 includes/__pycache__
 .vscode

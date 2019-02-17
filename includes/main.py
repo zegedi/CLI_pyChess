@@ -60,6 +60,5 @@ class Main(GameManadgement):
             #Then the games starts
             nwGame = GameManadgement(player01=self.players['player01'], player02=self.players['player02'], color01=self.players['color01'], color02=self.players['color02'])
 
-            #if the game is finished we delete the mwGamex
-            if nwGame:
-               del nwGame
+            #if the game is finished we delete the mwGame
+            del nwGame
