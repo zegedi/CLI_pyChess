@@ -386,6 +386,9 @@ class GameManadgement():
       #These are on index 0 in the table's rows
       self.placeholders = ["1","2","3","4","5","6","7","8"]
 
+      #This variable holds the number of the round since the start 
+      self.roundCount = 1
+
 
       #King positions
       """
@@ -411,10 +414,6 @@ class GameManadgement():
    """
    def playerMove(self):
 
-      #Printing the table
-      """
-      This code deals with the table printing
-      """
       def printTable(self):
          #first we print 40 lines the make the previos steps disappear
          for i in range(40):
@@ -423,6 +422,7 @@ class GameManadgement():
          #these variables hold spaces
          fiveSpace = "     "
          twelveSpace = "            "
+         twelveWhite = "████████████"
 
          #looping through the columns of the table
          for y in range(len(self.table)):
@@ -433,8 +433,17 @@ class GameManadgement():
                #printing the first two lines
                for i in range(1):
                   print(fiveSpace ,end="")
-                  for j in range(8):
-                     print("#" + twelveSpace, end="")
+                  for x in range(1, len(self.table[y])):
+                     if y % 2 != 0:
+                        if x % 2 != 0:
+                           print("#" + twelveWhite, end="")
+                        else:
+                           print("#" + twelveSpace, end="")
+                     else:
+                        if x % 2 != 0:
+                           print("#" + twelveSpace, end="")
+                        else:
+                           print("#" + twelveWhite, end="")
                   else:
                      print("#")
 
@@ -456,12 +465,30 @@ class GameManadgement():
                            col = "FEKETE"
                         elif col == "white":
                            col = "fehér"
-                        
-                        print("#" + col.center(12), end="")
+
+                        if y % 2 != 0:
+                           if x % 2 != 0:
+                              print("#██" + col.center(8) + "██",  end="")
+                           else:
+                              print("#" + col.center(12), end="")
+                        else:
+                           if x % 2 != 0:
+                              print("#" + col.center(12), end="")
+                           else:
+                              print("#██" + col.center(8) + "██", end="")
 
                      #if the table's position is empty
                      elif pos == "":
-                        print("#" + twelveSpace, end="")
+                        if y % 2 != 0:
+                           if x % 2 != 0:
+                              print("#" + twelveWhite, end="")
+                           else:
+                              print("#" + twelveSpace, end="")
+                        else:
+                           if x % 2 != 0:
+                              print("#" + twelveSpace, end="")
+                           else:
+                              print("#" + twelveWhite, end="")
 
                      #if the position is a placeholder
                      elif pos in self.placeholders:
@@ -470,6 +497,7 @@ class GameManadgement():
                   #if we reach the end of the line
                   else:
                      print("#" + self.table[y][0].center(5))
+               
                
                #then is prints the name of the figures
                else:
@@ -487,9 +515,9 @@ class GameManadgement():
                         #setting the figure to hungarian
                         if fig == "pawn":
                            if col == "black":
-                              fig = "PARASZT"
+                              fig = "GYALOG"
                            else:
-                              fig = "paraszt"
+                              fig = "gyalog"
                         
                         elif fig == "rook":
                            if col == "black":
@@ -499,9 +527,9 @@ class GameManadgement():
                         
                         elif fig == "knight":
                            if col == "black":
-                              fig = "LÓ"
+                              fig = "HUSZÁR"
                            else:
-                              fig = "ló"
+                              fig = "huszár"
                         
                         elif fig == "bishop":
                            if col == "black":
@@ -511,21 +539,40 @@ class GameManadgement():
                         
                         elif fig == "queen":
                            if col == "black":
-                              fig = "KIRÁLYNŐ"
+                              fig = "VEZÉR"
                            else:
-                              fig = "királynő"
+                              fig = "vezér"
                         
                         elif fig == "king":
                            if col == "black":
                               fig = "KIRÁLY"
                            else:
                               fig = "király"
-                        
-                        print("#" + fig.center(12), end="")
+
+                        #validating the position's background color
+                        if y % 2 != 0:
+                           if x % 2 != 0:
+                              print("#██" + fig.center(8) + "██", end="")
+                           else:
+                              print("#" + fig.center(12), end="")
+                        else:
+                           if x % 2 != 0:
+                              print("#" + fig.center(12), end="")
+                           else:
+                              print("#██" + fig.center(8) + "██", end="")
 
                      #if the table's position is empty
                      elif pos == "":
-                        print("#" + twelveSpace, end="")
+                        if y % 2 != 0:
+                           if x % 2 != 0:
+                              print("#" + twelveWhite, end="")
+                           else:
+                              print("#" + twelveSpace, end="")
+                        else:
+                           if x % 2 != 0:
+                              print("#" + twelveSpace, end="")
+                           else:
+                              print("#" + twelveWhite, end="")
 
                      #if the position is a placeholder
                      elif pos in self.placeholders:
@@ -539,8 +586,17 @@ class GameManadgement():
                #printing the last two lines
                for i in range(1):
                   print(fiveSpace ,end="")
-                  for j in range(8):
-                     print("#" + twelveSpace, end="")
+                  for x in range(1, len(self.table[y])):
+                     if y % 2 != 0:
+                        if x % 2 != 0:
+                           print("#" + twelveWhite, end="")
+                        else:
+                           print("#" + twelveSpace, end="")
+                     else:
+                        if x % 2 != 0:
+                           print("#" + twelveSpace, end="")
+                        else:
+                           print("#" + twelveWhite, end="")
                   else:
                      print("#")
 
@@ -659,7 +715,7 @@ class GameManadgement():
                   printTable(self=self)
 
                   #printing who's next
-                  print("\n\n{} következik (színe: {}):".format(playerName, col))
+                  print("\n\n{}. KÖR:\n{} következik ({}):".format(self.roundCount ,playerName, col))
                   
                   #letting the user know that his king is in a check position
                   print("\n Sakkot kaptál! Meg kell szüntetned ezt az állapotot!")
@@ -708,7 +764,7 @@ class GameManadgement():
             printTable(self=self)
 
             #printing who's next
-            print("\n\n{} következik (színe: {}):".format(playerName, col))
+            print("\n\n{}. KÖR:\n{} következik ({}):".format(self.roundCount ,playerName, col))
             
             #asking the user for an input
             askPlayer(self=self, playerColor=playerColor, useCopy=False)
@@ -727,6 +783,9 @@ class GameManadgement():
          #if this is the end of the game
          if not nextPlayer(self=self, playerName=self.players['player02'], playerColor=self.players['color02'], otherPlayer=self.players['player01'], otherColor=self.players['color01']):
             break
+
+         #adding one to the round count
+         self.roundCount += 1
 
 
       #finally when the game finished we return True
@@ -1152,17 +1211,17 @@ class GameManadgement():
          pos = re.split("[_]", self.copyTable[y][x])
       else:
          pos = re.split("[_]", self.table[y][x])
-
+         
       #If we want ot get the COLOR
       if returnCol:
-         if len(pos) > 0:
+         if len(pos) == 2:
             return pos[0]
          else:
             return ""
 
       #If we want to get the FIGURE
       elif returnFig:
-         if len(pos) > 0:
+         if len(pos) == 2:
             return pos[1]
          else:
             return ""
@@ -1239,9 +1298,9 @@ class GameManadgement():
                   #if the pawn is in a figure-switch position
                   if self.pawnSwitch(nextY=nextY, col=col):
                      while True:
-                        ans = input("Mire cseréljem be a parasztot? [bástya, futó, ló, királynő]: ").strip().lower()
+                        ans = input("Mire cseréljem be a parasztot? [bástya, futó, huszár, vezér]: ").strip().lower()
                         #translating the input to figures
-                        if ans == "királynő":
+                        if ans == "vezér":
                            fig = "queen"
                            break
                         elif ans == "bástya":
@@ -1250,7 +1309,7 @@ class GameManadgement():
                         elif ans == "futó":
                            fig = "bishop"
                            break
-                        elif ans == "ló":
+                        elif ans == "huszár":
                            fig = "knight"
                            break
                         else:
