@@ -1,3 +1,9 @@
+#!/usr/bin/env python3
+
+import sys
+from pathlib import Path
+from languages.languages import *
+from colorama import init, Fore, Back, Style
 from random import randint
 from copy import deepcopy
 import re
@@ -9,6 +15,14 @@ class GameManadgement():
    This method is for validating a pawn move
    """
    def pawn_move(self, nowX, nowY, nextX, nextY, color, useCopyTable=False):
+
+      #this method check if a pawn could perform an en_passant kill
+      def checkForEnPassant(self, nextX, nextY, color):
+         for i in range(len(self.en_passant)):
+            if nextY == self.en_passant[i]["realY"] and nextX == self.en_passant[i]["realX"] and color != self.en_passant[i]["col"]:
+               return True
+         else:
+            return False
       
       #if the pawn is BLACK
       if color == "black":
@@ -25,10 +39,15 @@ class GameManadgement():
 
             #if the pawn wants to kill
             elif (nextX == nowX -1) or (nextX == nowX + 1):
+               #if it is a normal kill
                if self.checkTable(x=nextX, y=nextY, returnCol=True, useCopyTable=useCopyTable) == "white":
                   return True
                else:
-                  return False
+                  #if it is an en_passnat kill
+                  if checkForEnPassant(self=self, nextX=nextX, nextY=nextY, color=color):
+                     return True
+                  else:
+                     return False
 
          #if this is the first move of the (2 steps forward)
          elif nowY == 2 and nextY == nowY + 2 and nowX == nextX:
@@ -57,10 +76,15 @@ class GameManadgement():
 
             #if the pawn wants to kill
             elif (nextX == nowX -1) or (nextX == nowX + 1):
+               #if it is a normal kill
                if self.checkTable(x=nextX, y=nextY, returnCol=True, useCopyTable=useCopyTable) == "black":
                   return True
                else:
-                  return False
+                  #if it is an en_passnat kill
+                  if checkForEnPassant(self=self, nextX=nextX, nextY=nextY, color=color):
+                     return True
+                  else:
+                     return False
 
          #if this is the first move of the (2 steps forward)
          elif nowY == 7 and nextY == nowY - 2 and nowX == nextX:
@@ -332,7 +356,117 @@ class GameManadgement():
                return False
          else:
             return False
-      
+
+      #if the king wants to castle
+      elif (nextX == nowX - 2 or nextX == nowX + 2) and nextY == nowY:
+
+         #if the king is not in a check position
+         if not self.checkForCheck(kingX=nowX, kingY=nowY, col=color):
+            
+            #if the king is white
+            if color == "black":
+               
+               #if the king wants to go left (plus the king and the rook didn't moved yet)
+               if nextX == nowX - 2 and not self.blackCastling["kingMoved"] and not self.blackCastling["leftRookMoved"]:
+
+                  x = nowX - 1
+                  while x != nextX - 2:
+                     posCol = self.checkTable(x=x, y=nowY, returnCol=True)
+                     if posCol != "":
+                        return False
+                     else:
+                        if x == nextX - 1:
+                           x += 1
+                        
+                        else:
+                           #if the king is safe to go there
+                           if not self.checkForCheck(kingX=x, kingY=nowY, col=color):
+                              x += 1
+                           #if the king could not go there due to check occurense
+                           else:
+                              return False
+
+                  #finally if everything is right
+                  return True
+
+               #if the king wants go right (plus the king and the rook didn't moved yet)
+               elif nextX == nowX + 2 and not self.blackCastling["kingMoved"] and not self.blackCastling["rightRookMoved"]:
+                  
+                  #checking if there is nothing between the figures
+                  x = nowX + 1
+                  while x != nextX + 1:
+                     posCol = self.checkTable(x=x, y=nowY, returnCol=True)
+                     if posCol != "":
+                        return False
+                     else:
+                        #if the king is safe to go there
+                        if not self.checkForCheck(kingX=x, kingY=nowY, col=color):
+                           x += 1
+                        #if the king could not go there due to check occurense
+                        else:
+                           return False
+
+                  #finally if everything is right
+                  return True
+
+               #if the figures moved already
+               else:
+                  return False
+
+            #if the king is black
+            elif color == "white":
+
+               #if the king wants to go left (plus the king and the rook didn't moved yet)
+               if nextX == nowX - 2 and not self.whiteCastling["kingMoved"] and not self.whiteCastling["leftRookMoved"]:
+
+                  x = nowX - 1
+                  while x != nextX - 2:
+                     posCol = self.checkTable(x=x, y=nowY, returnCol=True)
+                     if posCol != "":
+                        return False
+                     else:
+                        if x == nextX - 1:
+                           x += 1
+                        
+                        else:
+                           #if the king is safe to go there
+                           if not self.checkForCheck(kingX=x, kingY=nowY, col=color):
+                              x += 1
+                           #if the king could not go there due to check occurense
+                           else:
+                              return False
+
+                  #finally if everything is right
+                  return True
+
+               #if the king wants go right (plus the king and the rook didn't moved yet)
+               elif nextX == nowX + 2 and not self.whiteCastling["kingMoved"] and not self.whiteCastling["rightRookMoved"]:
+                  
+                  #checking if there is nothing between the figures
+                  x = nowX + 1
+                  while x != nextX + 1:
+                     posCol = self.checkTable(x=x, y=nowY, returnCol=True)
+                     if posCol != "":
+                        return False
+                     else:
+                        #if the king is safe to go there
+                        if not self.checkForCheck(kingX=x, kingY=nowY, col=color):
+                           x += 1
+                        #if the king could not go there due to check occurense
+                        else:
+                           return False
+
+                  #finally if everything is right
+                  return True
+
+               #if the figures moved already
+               else:
+                  return False
+
+         #if the king is in a check position
+         else:
+            return False
+
       #if the move is invalid
       else:
          return False
@@ -346,16 +480,14 @@ class GameManadgement():
    #####################################################################################################################################
    """
 
-
-   #These are kinds of error messages
-   invalidInput = "HIBA: nem megfelelő paramétereket adott meg!"
-   stepError = "HIBA: nem lehet a megadott lépést elvégezni!"
-   checkError = "HIBA: királyod jelenleg sakkban van, meg kell szüntetned ezt az állapotot!"
-
    #This function creates a new game
-   def __init__(self, player01, player02, color01, color02):
+   def __init__(self, player01, player02, color01, color02, lang):
 
-      #setting up the two player names and their colors
+      #This section sets up colorama
+      init(autoreset=True)
+
+
+      #Setting up the two player names and their colors
       self.players = dict(player01=player01, player02=player02, color01=color01, color02=color02)
 
       #Table
@@ -367,16 +499,16 @@ class GameManadgement():
        * The elements's elements are the rows [ X ]
       """
       self.table = [
-         ("A","B","C","D","E","F","G","G"), #These are the row names
-         ["1", "black_rook","black_knight","black_bishop","black_queen","black_king","black_bishop","black_knight","black_rook"],
-         ["2", "black_pawn","black_pawn","black_pawn","black_pawn","black_pawn","black_pawn","black_pawn","black_pawn"],
-         ["3", "","","","","","","",""],
-         ["4", "","","","","","","",""],
-         ["5", "","","","","","","",""],
+         ("A","B","C","D","E","F","G","H"), #These are the row names
+         ["8", "black_rook","black_knight","black_bishop","black_queen","black_king","black_bishop","black_knight","black_rook"],
+         ["7", "black_pawn","black_pawn","black_pawn","black_pawn","black_pawn","black_pawn","black_pawn","black_pawn"],
          ["6", "","","","","","","",""],
-         ["7", "white_pawn","white_pawn","white_pawn","white_pawn","white_pawn","white_pawn","white_pawn","white_pawn"],
-         ["8", "white_rook","white_knight","white_bishop","white_queen","white_king","white_bishop","white_knight","white_rook"],
-         ("A","B","C","D","E","F","G","G")
+         ["5", "","","","","","","",""],
+         ["4", "","","","","","","",""],
+         ["3", "","","","","","","",""],
+         ["2", "white_pawn","white_pawn","white_pawn","white_pawn","white_pawn","white_pawn","white_pawn","white_pawn"],
+         ["1", "white_rook","white_knight","white_bishop","white_queen","white_king","white_bishop","white_knight","white_rook"],
+         ("A","B","C","D","E","F","G","H")
       ]
 
       #This is the copy of the table
@@ -389,6 +521,29 @@ class GameManadgement():
       #This variable holds the number of the round since the start 
       self.roundCount = 1
 
+      #This list holds the values of an en_passant position
+      """
+      This list holds additional dictionaries in itself which contain:
+       # expire - in which round will the value expire
+       # tableX - this is the pawn's X position on the table
+       # tableY - this is the pawn's Y position on the table
+       # realX  - this is the pawn's fictional X position
+       # realY  - this is the pawn's fictional Y position
+       # col    - this is the color of the pawn
+      """
+      self.en_passant = list()
+
+      #This variable holds how much round went off to the 
+      self.fifty_move = 1
+      
+      #Castling variables
+      """
+      These dicts are holding if the figures are moved or not
+      """
+      self.blackCastling = {"kingMoved": False, "leftRookMoved": False, "rightRookMoved": False}
+      self.whiteCastling = {"kingMoved": False, "leftRookMoved": False, "rightRookMoved": False}
+      self.copyBlackCastling = dict()
+      self.copyWhiteCastling = dict()
 
       #King positions
       """
@@ -403,6 +558,25 @@ class GameManadgement():
       self.copyWhiteKing = dict()
 
 
+      #Setting up the language of the game
+      #Hungarian
+      if lang == "magyar":
+         self.lang = Hungarian()
+
+      #English (US)
+      elif lang == "english":
+         self.lang = English()
+
+      #Default (English)
+      else:
+         self.lang = English()
+
+
+      #These are kinds of error messages
+      self.invalidInput = self.lang.invalidInput
+      self.stepError = self.lang.stepError
+      self.checkError = self.lang.checkError
+
       #finally invoking the playerMove method
       self.playerMove()
 
@@ -414,15 +588,77 @@ class GameManadgement():
    """
    def playerMove(self):
 
+      #This method prints a message when the game is finished
+      def gameOver(self, player="", col="", otherPlayer="", otherCol=""):
+
+         #first print 50 lines to make the previous steps disappear
+         for i in range(60):
+            print("")
+
+         #creating the gameOver filename
+         fileName = "gg" + str(randint(1,3)) + ".txt"
+         path = Path("includes", fileName)
+
+         #then priniting the GAME OVER SIGN
+         with open(path, "r", encoding="utf8") as f:
+            print(f.read())
+
+         #printing the final result and returning False to indicate this is the end of the game
+         #if player01 won
+         if player != "" and col != "" and otherPlayer == "" and otherCol == "":
+            print(self.lang.checkmateMessage.format(player, col))
+         
+         #if player02 won
+         elif player == "" and col == "" and otherPlayer != "" and otherCol != "":
+            print(self.lang.checkmateMessage.format(otherPlayer, otherCol))
+
+         #if it's a draw
+         else:
+            print(self.lang.drawMessage)
+
+
+
+      #This method print out the current table
       def printTable(self):
+
+         #This method creates the padding around the fig and col
+         """
+         This method creates the space around the elements
+         """
+         def addPadding(self, element):
+
+            #specify the needed padding
+            padding = 10 - len(element)
+
+            pad = ""
+            rest = ""
+
+            for i in range(padding // 2):
+               pad += " "
+
+            element = pad + element + pad
+            
+            #if there should be more padding added
+            if padding % 2 != 0:
+               r = padding % 2
+               for i in range(r):
+                  rest += " "
+            else:
+               rest = ""
+
+            return element + rest
+
+
          #first we print 40 lines the make the previos steps disappear
          for i in range(40):
             print("")
 
          #these variables hold spaces
          fiveSpace = "     "
-         twelveSpace = "            "
-         twelveWhite = "████████████"
+         tenSpace = "          "
+
+         whiteBg = Back.WHITE + Style.DIM
+         blackBg = Back.BLACK
 
          #looping through the columns of the table
          for y in range(len(self.table)):
@@ -430,182 +666,182 @@ class GameManadgement():
             #if it's not the first and last line
             if y != 0 and y != len(self.table) - 1:
 
-               #printing the first two lines
-               for i in range(1):
-                  print(fiveSpace ,end="")
-                  for x in range(1, len(self.table[y])):
-                     if y % 2 != 0:
-                        if x % 2 != 0:
-                           print("#" + twelveWhite, end="")
-                        else:
-                           print("#" + twelveSpace, end="")
+               #printing the padding line on the top
+               print(fiveSpace + "#",end="")
+               for x in range(1, len(self.table[y])):
+                  if y % 2 != 0:
+                     if x % 2 != 0:
+                        print(whiteBg + tenSpace, end="")
                      else:
-                        if x % 2 != 0:
-                           print("#" + twelveSpace, end="")
-                        else:
-                           print("#" + twelveWhite, end="")
+                        print(blackBg + tenSpace, end="")
                   else:
-                     print("#")
+                     if x % 2 != 0:
+                        print(blackBg + tenSpace, end="")
+                     else:
+                        print(whiteBg + tenSpace, end="")
+               else:
+                  print("#")
 
                #looping through the table
                #first it prints the color of the figures
-               for i in range(1):
-                  for x in range(len(self.table[y])):
+               for x in range(len(self.table[y])):
 
-                     pos = self.table[y][x]
+                  pos = self.table[y][x]
 
-                     #if there's a figure on the position
-                     if pos != "" and pos not in self.placeholders:
-                        
-                        position = re.split("_", pos)
-                        col = position[0]
+                  #if there's a figure on the position
+                  if pos != "" and pos not in self.placeholders:
+                     
+                     position = re.split("_", pos)
+                     col = position[0]
 
-                        #setting the color to hungarian
-                        if col == "black":
-                           col = "FEKETE"
-                        elif col == "white":
-                           col = "fehér"
+                     #setting the color to hungarian
+                     if col == "black":
+                        col = Fore.RED + Style.BRIGHT + addPadding(self=self, element=self.lang.black).upper()
+                     elif col == "white":
+                        col = Fore.GREEN + Style.BRIGHT + addPadding(self=self, element=self.lang.white).lower()
 
-                        if y % 2 != 0:
-                           if x % 2 != 0:
-                              print("#██" + col.center(8) + "██",  end="")
-                           else:
-                              print("#" + col.center(12), end="")
+                     if y % 2 != 0:
+                        if x % 2 != 0:
+                           print(whiteBg + col, end="")
                         else:
-                           if x % 2 != 0:
-                              print("#" + col.center(12), end="")
-                           else:
-                              print("#██" + col.center(8) + "██", end="")
-
-                     #if the table's position is empty
-                     elif pos == "":
-                        if y % 2 != 0:
-                           if x % 2 != 0:
-                              print("#" + twelveWhite, end="")
-                           else:
-                              print("#" + twelveSpace, end="")
+                           print(blackBg + col, end="")
+                     else:
+                        if x % 2 != 0:
+                           print(blackBg + col, end="")
                         else:
-                           if x % 2 != 0:
-                              print("#" + twelveSpace, end="")
-                           else:
-                              print("#" + twelveWhite, end="")
+                           print(whiteBg + col, end="")
 
-                     #if the position is a placeholder
-                     elif pos in self.placeholders:
-                        print(pos.center(5), end="")
+                  #if the table's position is empty
+                  elif pos == "":
+                     if y % 2 != 0:
+                        if x % 2 != 0:
+                           print(whiteBg + tenSpace, end="")
+                        else:
+                           print(blackBg + tenSpace, end="")
+                     else:
+                        if x % 2 != 0:
+                           print(blackBg + tenSpace, end="")
+                        else:
+                           print(whiteBg + tenSpace, end="")
 
-                  #if we reach the end of the line
-                  else:
-                     print("#" + self.table[y][0].center(5))
+                  #if the position is a placeholder
+                  elif pos in self.placeholders:
+                     print(pos.center(5) + "#", end="")
+
+               #if we reach the end of the line
+               else:
+                  print("#" + self.table[y][0].center(5))
                
                
                #then is prints the name of the figures
-               else:
-                  for x in range(len(self.table[y])):
+               for x in range(len(self.table[y])):
 
-                     pos = self.table[y][x]
+                  pos = self.table[y][x]
 
-                     #if there's a figure on the position
-                     if pos != "" and pos not in self.placeholders:
-                        
-                        position = re.split("_", pos)
-                        col = position[0]
-                        fig = position[1]
+                  #if there's a figure on the position
+                  if pos != "" and pos not in self.placeholders:
+                     
+                     position = re.split("_", pos)
+                     col = position[0]
+                     fig = position[1]
 
-                        #setting the figure to hungarian
-                        if fig == "pawn":
-                           if col == "black":
-                              fig = "GYALOG"
-                           else:
-                              fig = "gyalog"
-                        
-                        elif fig == "rook":
-                           if col == "black":
-                              fig = "BÁSTYA"
-                           else:
-                              fig = "bástya"
-                        
-                        elif fig == "knight":
-                           if col == "black":
-                              fig = "HUSZÁR"
-                           else:
-                              fig = "huszár"
-                        
-                        elif fig == "bishop":
-                           if col == "black":
-                              fig = "FUTÓ"
-                           else:
-                              fig = "futó"
-                        
-                        elif fig == "queen":
-                           if col == "black":
-                              fig = "VEZÉR"
-                           else:
-                              fig = "vezér"
-                        
-                        elif fig == "king":
-                           if col == "black":
-                              fig = "KIRÁLY"
-                           else:
-                              fig = "király"
-
-                        #validating the position's background color
-                        if y % 2 != 0:
-                           if x % 2 != 0:
-                              print("#██" + fig.center(8) + "██", end="")
-                           else:
-                              print("#" + fig.center(12), end="")
+                     #setting the figure to hungarian
+                     if fig == "pawn":
+                        if col == "black":
+                           fig = Fore.RED + Style.BRIGHT + addPadding(self=self, element=self.lang.pawn).upper()
                         else:
-                           if x % 2 != 0:
-                              print("#" + fig.center(12), end="")
-                           else:
-                              print("#██" + fig.center(8) + "██", end="")
-
-                     #if the table's position is empty
-                     elif pos == "":
-                        if y % 2 != 0:
-                           if x % 2 != 0:
-                              print("#" + twelveWhite, end="")
-                           else:
-                              print("#" + twelveSpace, end="")
+                           fig = Fore.GREEN + Style.BRIGHT + addPadding(self=self, element=self.lang.pawn).lower()
+                     
+                     elif fig == "rook":
+                        if col == "black":
+                           fig = Fore.RED + Style.BRIGHT + addPadding(self=self, element=self.lang.rook).upper()
                         else:
-                           if x % 2 != 0:
-                              print("#" + twelveSpace, end="")
-                           else:
-                              print("#" + twelveWhite, end="")
+                           fig = Fore.GREEN + Style.BRIGHT + addPadding(self=self, element=self.lang.rook).lower()
+                     
+                     elif fig == "knight":
+                        if col == "black":
+                           fig = Fore.RED + Style.BRIGHT + addPadding(self=self, element=self.lang.knight).upper()
+                        else:
+                           fig = Fore.GREEN + Style.BRIGHT + addPadding(self=self, element=self.lang.knight).lower()
+                     
+                     elif fig == "bishop":
+                        if col == "black":
+                           fig = Fore.RED + Style.BRIGHT + addPadding(self=self, element=self.lang.bishop).upper()
+                        else:
+                           fig = Fore.GREEN + Style.BRIGHT + addPadding(self=self, element=self.lang.bishop).lower()
+                     
+                     elif fig == "queen":
+                        if col == "black":
+                           fig = Fore.RED + Style.BRIGHT + addPadding(self=self, element=self.lang.queen).upper()
+                        else:
+                           fig = Fore.GREEN + Style.BRIGHT + addPadding(self=self, element=self.lang.queen).lower()
+                     
+                     elif fig == "king":
+                        if col == "black":
+                           fig = Fore.RED + Style.BRIGHT + addPadding(self=self, element=self.lang.king).upper()
+                        else:
+                           fig = Fore.GREEN + Style.BRIGHT + addPadding(self=self, element=self.lang.king).lower()
 
-                     #if the position is a placeholder
-                     elif pos in self.placeholders:
-                        print(fiveSpace, end="")
-
-                  #if we reach the end of the line
-                  else:
-                     print("#")
-
-                  
-               #printing the last two lines
-               for i in range(1):
-                  print(fiveSpace ,end="")
-                  for x in range(1, len(self.table[y])):
+                     #validating the position's background color
                      if y % 2 != 0:
+
                         if x % 2 != 0:
-                           print("#" + twelveWhite, end="")
+                           print(whiteBg + fig, end="")
                         else:
-                           print("#" + twelveSpace, end="")
+                           print(blackBg + fig, end="")
                      else:
                         if x % 2 != 0:
-                           print("#" + twelveSpace, end="")
+                           print(blackBg + fig, end="")
                         else:
-                           print("#" + twelveWhite, end="")
-                  else:
-                     print("#")
+                           print(whiteBg + fig, end="")
 
+                  #if the table's position is empty
+                  elif pos == "":
+                     if y % 2 != 0:
+                        if x % 2 != 0:
+                           print(whiteBg + tenSpace, end="")
+                        else:
+                           print(blackBg + tenSpace, end="")
+                     else:
+                        if x % 2 != 0:
+                           print(blackBg + tenSpace, end="")
+                        else:
+                           print(whiteBg + tenSpace, end="")
+
+                  #if the position is a placeholder
+                  elif pos in self.placeholders:
+                     print(fiveSpace + "#", end="")
+
+               #if we reach the end of the line
                else:
-                  print(fiveSpace, end="")
-                  for i in range(105):
-                     print("#", end="")
+                  print("#")
+
+                  
+               #printing the padding line on the bottom
+               print(fiveSpace + "#", end="")
+               for x in range(1, len(self.table[y])):
+                  if y % 2 != 0:
+                     if x % 2 != 0:
+                        print(whiteBg + tenSpace, end="")
+                     else:
+                        print(blackBg + tenSpace, end="")
                   else:
-                     print("")
+                     if x % 2 != 0:
+                        print(blackBg + tenSpace, end="")
+                     else:
+                        print(whiteBg + tenSpace, end="")
+               else:
+                  print("#")
+                  
+                  #if it was the last line of the table
+                  if y == len(self.table)-2:
+
+                     #printing a row of #s
+                     print(fiveSpace, end="")
+                     for i in range(82):
+                        print("#", end="")
+                     else:
+                        print("")
 
 
             #if it is the first and last line
@@ -614,10 +850,11 @@ class GameManadgement():
                #printing the column number
                for x in range(len(self.table[y])):
 
+                  #if it is the first item of the row
                   if x == 0:
                      print(fiveSpace, end="")
 
-                  print(" " + self.table[y][x].center(12), end="")
+                  print(" " + self.table[y][x].center(9), end="")
 
                else:
 
@@ -626,45 +863,96 @@ class GameManadgement():
 
                      #printing a row of #s
                      print("\n" + fiveSpace, end="")
-                     for i in range(105):
+                     for i in range(82):
                         print("#", end="")
                      else:
                         print("")
 
       
       #This method asks for the input
-      def askPlayer(self, playerColor, useCopy=False):
+      def askPlayer(self, playerName, playerColor, otherPlayer, otherColor, useCopy=False):
          while True:
-            nowPos = input("\nHonnan: ").strip().lower()
-            nextPos = input("Hova: ").strip().lower()
+            nowPos = input(self.lang.fromMessage).strip().lower()
 
-            #if input's lenght is 2
-            if len(nowPos) == 2 and len(nextPos) == 2:
+            #Checking if the nowPos is a special command
+            #if the player is given up
+            if nowPos == "giveup":
+               print("")
+               while True:
+                  ans = input(self.lang.giveupMessage).strip().lower()
 
-               #if the input doesn't contain a number (1-8)
-               if len(re.findall("[a-h][a-h]", nowPos)) != 0 or len(re.findall("[a-h][a-h]", nowPos)) != 0:
-                  print("\n" + self.invalidInput)
+                  #if the player wants to give up
+                  if ans == self.lang.langYes:
+                     gameOver(self=self, otherPlayer=otherPlayer, otherCol=otherColor)
+                     return False
 
-               #if the input doesn't contain a letter (a-h)
-               elif len(re.findall("[1-8][1-8]", nowPos)) != 0 or len(re.findall("[1-8][1-8]", nowPos)) != 0:
-                  print("\n" + self.invalidInput)
-
-               #if the input is correct
-               else:
-
-                  #Checking the result of the move
-                  result = self.makeStep(nowPos=nowPos, nextPos=nextPos, playerColor=playerColor, useCopyTable=useCopy)
-         
-                  #if an error occurs with the step
-                  if bool(result):
-                     print("\n {}".format(result))
-
-                  #if there is no error with the step
-                  else:
+                  #if the player doesn't want to give up
+                  elif ans == self.lang.langNo:
                      break
-                  
+
+
+            #if the player offers a draw
+            elif nowPos == "drawoffer":
+               print("")
+               while True:
+                  ans = input(self.lang.drawOfferMessage.format(otherPlayer, playerName)).strip().lower()
+
+                  #if the other player denise
+                  if ans == self.lang.langNo:
+                     break
+
+                  #if the other player accepts the draw
+                  elif ans == self.lang.langYes:
+                     gameOver(self=self)
+                     return False
+
+
+            #if the player wants to use the Fifty-move rule
+            elif nowPos == "50move":
+               #if it is a valid Fifty-move rule
+               if self.fifty_move >= 50:
+                  gameOver(self=self)
+                  return False
+
+               #if it is not a valid Fifty-move rule
+               else:
+                  print("\n" + self.lang.fiftyMoveError)
+               
+            
+            #if it is a normal move
             else:
-               print("\n" + self.invalidInput)
+               pass
+
+               nextPos = input(self.lang.toMessage).strip().lower()
+
+               #if input's lenght is 2
+               if len(nowPos) == 2 and len(nextPos) == 2:
+
+                  #if the input doesn't contain a number (1-8)
+                  if len(re.findall("[a-h][a-h]", nowPos)) != 0 or len(re.findall("[a-h][a-h]", nowPos)) != 0:
+                     print("\n" + self.invalidInput)
+
+                  #if the input doesn't contain a letter (a-h)
+                  elif len(re.findall("[1-8][1-8]", nowPos)) != 0 or len(re.findall("[1-8][1-8]", nowPos)) != 0:
+                     print("\n" + self.invalidInput)
+
+                  #if the input is correct
+                  else:
+
+                     #Checking the result of the move
+                     result = self.makeStep(nowPos=nowPos, nextPos=nextPos, playerColor=playerColor, useCopyTable=useCopy)
+            
+                     #if an error occurs with the step
+                     if bool(result):
+                        print("\n{}".format(result))
+
+                     #if there is no error with the step
+                     else:
+                        #return True to indicate the game is not over yet
+                        return True
+                  
+               else:
+                  print("\n" + self.invalidInput)
 
                   
       #This method deals with the next player
@@ -674,13 +962,14 @@ class GameManadgement():
          if playerColor == "white":
             kingX = self.whiteKing["x"]
             kingY = self.whiteKing["y"] 
-            col = "fehér"
-            otherCol = "fekete"
+            col = self.lang.white
+            otherCol = self.lang.black
+
          elif playerColor == "black":
             kingX = self.blackKing["x"]
             kingY = self.blackKing["y"] 
-            col = "fekete"
-            otherCol = "fehér"
+            col = self.lang.black
+            otherCol = self.lang.white
 
          #if there is a check on the user's king
          if self.checkForCheck(kingX=kingX, kingY=kingY, col=playerColor, useCopyTable=False):
@@ -688,19 +977,8 @@ class GameManadgement():
             #if it is checkmate
             if self.checkForCheckmate(kingX=kingX, kingY=kingY, col=playerColor):
                
-               #first print 50 lines to make the previous steps disappear
-               for i in range(60):
-                  print("")
-
-               #creating the gameOver filename
-               fileName = "gg" + str(randint(1,3)) + ".txt"
-
-               #then priniting the GAME OVER SIGN
-               with open(fileName, "r", encoding="utf8") as f:
-                  print(f.read())
-
-               #printing the final result and returning True to indicate this is the end of the game
-               print("\nA győztes: {} (színe: {})\nGratulálunk a győzelemhez!\n".format(otherPlayer, otherCol))
+               #using the gameOver function and return False to indicate the end of the game
+               gameOver(self=self, player=playerName, col=playerColor, otherPlayer=otherPlayer, otherCol=otherCol)
                return False
 
             #if it's a normal check
@@ -711,45 +989,65 @@ class GameManadgement():
                   #creating the copyTable
                   self.copyTable = deepcopy(self.table)
 
+                  #creating the copy of the fifty_move
+                  self.copyFifty_move = self.fifty_move
+
                   #Printing the table
                   printTable(self=self)
 
-                  #printing who's next
-                  print("\n\n{}. KÖR:\n{} következik ({}):".format(self.roundCount ,playerName, col))
+                  #printing who's next and the special commands
+                  print(self.lang.roundMessage.format(self.roundCount ,playerName, col))
+                  print(self.lang.commandMessage)
                   
                   #letting the user know that his king is in a check position
-                  print("\n Sakkot kaptál! Meg kell szüntetned ezt az állapotot!")
-                  askPlayer(self=self, playerColor=playerColor, useCopy=True)
+                  print(self.lang.checkMessage)
+                  result = askPlayer(self=self, playerName=playerName, playerColor=playerColor, otherPlayer=otherPlayer, otherColor=otherCol, useCopy=True)
 
-                  #making the copies of the king's position
-                  #it is used for updating the king's finaly position
-                  if playerColor == "white":
-                     kingX = self.copyWhiteKing["x"]
-                     kingY = self.copyWhiteKing["y"]
-                     print(self.copyWhiteKing)
+                  #if the user gives up or the players agreed to a draw
+                  if not result:
+                     #return False to indicate the game is over
+                     return False
 
-                  elif playerColor == "black":
-                     kingX = self.copyBlackKing["x"]
-                     kingY = self.copyBlackKing["y"]
-                     print(self.copyBlackKing)
-
-                  #if the check is over
-                  if not self.checkForCheck(kingX=kingX, kingY=kingY, col=playerColor, useCopyTable=True):
-                     
-                     #updating the king's final position
+                  else:
+                     #making the copies of the king's position
+                     #it is used for updating the king's finaly position
                      if playerColor == "white":
-                        self.whiteKing["x"] = self.copyWhiteKing["x"]
-                        self.whiteKing["y"] = self.copyWhiteKing["y"]
-                        del self.copyWhiteKing
-                        
-                     elif playerColor == "black":
-                        self.blackKing["x"] = self.copyBlackKing["x"]
-                        self.blackKing["y"] = self.copyBlackKing["y"]
-                        del self.copyBlackKing
+                        kingX = self.copyWhiteKing["x"]
+                        kingY = self.copyWhiteKing["y"]
+                        print(self.copyWhiteKing)
 
-                     #updating the self.table
-                     self.table = deepcopy(self.copyTable)
-                     break
+                     elif playerColor == "black":
+                        kingX = self.copyBlackKing["x"]
+                        kingY = self.copyBlackKing["y"]
+                        print(self.copyBlackKing)
+
+                     #if the check is over
+                     if not self.checkForCheck(kingX=kingX, kingY=kingY, col=playerColor, useCopyTable=True):
+                        
+                        #updating the king's final position
+                        if playerColor == "white":
+                           self.whiteKing["x"] = self.copyWhiteKing["x"]
+                           self.whiteKing["y"] = self.copyWhiteKing["y"]
+                           del self.copyWhiteKing
+                           
+                        elif playerColor == "black":
+                           self.blackKing["x"] = self.copyBlackKing["x"]
+                           self.blackKing["y"] = self.copyBlackKing["y"]
+                           del self.copyBlackKing
+
+                        #updating the fifty_move variable
+                        self.fifty_move = self.copyFifty_move
+
+                        #updating the castling variables
+                        if playerColor == "white":
+                           self.whiteCastling = deepcopy(self.copyWhiteCastling)
+
+                        elif playerColor == "black":
+                           self.blackCastling = deepcopy(self.copyBlackCastling)
+
+                        #updating the self.table
+                        self.table = deepcopy(self.copyTable)
+                        break
                   
 
                #return True to indicate the game is not over yet
@@ -763,16 +1061,30 @@ class GameManadgement():
             #Printing the table
             printTable(self=self)
 
-            #printing who's next
-            print("\n\n{}. KÖR:\n{} következik ({}):".format(self.roundCount ,playerName, col))
-            
+            #printing who's next and the special commands
+            print(self.lang.roundMessage.format(self.roundCount ,playerName, col))
+            print(self.lang.commandMessage)
+
             #asking the user for an input
-            askPlayer(self=self, playerColor=playerColor, useCopy=False)
-            return True
+            result = askPlayer(self=self, playerName=playerName, playerColor=playerColor, otherPlayer=otherPlayer, otherColor=otherColor, useCopy=False)
+            return result
 
       
       #until the end of the game
       while True:
+
+         #This holds the item's indexes of the en_passant list which needs to be poped
+         indexesToPop = list()
+
+         #This loop checks if there is any item in the self.en_passant which needs to be poped
+         for i in range(len(self.en_passant)):
+            if self.en_passant[i]["expire"] <= self.roundCount:
+               indexesToPop.append(i)
+         
+         #poping the expired items from self.en_passant
+         else:
+            for i in indexesToPop:
+               self.en_passant.pop(i)
 
          #WHITE PLAYER
          #if this is the end of the game
@@ -784,13 +1096,11 @@ class GameManadgement():
          if not nextPlayer(self=self, playerName=self.players['player02'], playerColor=self.players['color02'], otherPlayer=self.players['player01'], otherColor=self.players['color01']):
             break
 
-         #adding one to the round count
+         #adding one to the fifty_move variable
+         self.fifty_move += 1
+
+         #adding one to the roundCount variable
          self.roundCount += 1
-
-
-      #finally when the game finished we return True
-      return True
-
 
 
 
@@ -803,7 +1113,6 @@ class GameManadgement():
     * True  - if the king is in check or could be
     * False - if the king is safe 
    """
-   #MÉG VAN MIT RAJTA JAVÍTANI
    def checkForCheck(self, kingX, kingY, col, returnCheckerPos=False, useCopyTable=False):
 
       #if we want to use the self.copyTable
@@ -1227,15 +1536,26 @@ class GameManadgement():
             return ""
 
 
-   #Mapping method
+   #mapNumberToX
    """
    This method maps the letter form position input to numbers.
    """
    def mapNumberToX(self, letter):
       abc = {"a": 1, "b": 2, "c": 3, "d": 4, "e": 5, "f": 6, "g": 7, "h": 8}
+      for x, value in abc.items():
+         if letter == x:
+            return int(value)
+
+   #mapNumberToY
+   """
+   This method maps the letter form position input to numbers.
+   """
+   def mapNumberToY(self, number):
+      str(number)
+      abc = {"8": 1, "7": 2, "6": 3, "5": 4, "4": 5, "3": 6, "2": 7, "1": 8}
       for y, value in abc.items():
-         if letter == y:
-            return value
+         if number == y:
+            return int(value)
 
 
 
@@ -1243,13 +1563,39 @@ class GameManadgement():
    """
    This method makes the change to the table / copyTable
    """
-   def alterTable(self, nowX, nowY, nextX, nextY, col, fig, useCopyTable=False):
+   def alterTable(self, nowX, nowY, nextX, nextY, col, fig, thirdX=False, thirdY=False, thirdPos="", fourthX=False, fourthY=False, fourthPos="", useCopyTable=False):
+      
+      #This gets the color of the next position
+      otherCol = self.checkTable(x=nextX, y=nextY, returnCol=True, useCopyTable=useCopyTable)
+      
+      #if we want to use the copyTable
       if useCopyTable:
+         if bool(thirdX) and bool(thirdY):
+            self.copyTable[thirdY][thirdX] = thirdPos
+            if bool(fourthX) and bool(fourthY):
+               self.copyTable[fourthY][fourthX] = fourthPos
+
          self.copyTable[nowY][nowX] = ""
          self.copyTable[nextY][nextX] = col + "_" + fig
+
+         #if the move is a kill it resets the copyFifty_move variable
+         if otherCol != "" and otherCol != col:
+            self.copyFifty_move = 0
+      
+      #if we want to use the table
       else:
+         if bool(thirdX) and bool(thirdY):
+            self.table[thirdY][thirdX] = thirdPos
+            if bool(fourthX) and bool(fourthY):
+               self.table[fourthY][fourthX] = fourthPos
+
          self.table[nowY][nowX] = ""
          self.table[nextY][nextX] = col + "_" + fig
+         
+         #if the move is a kill it resets the fifty_move variable
+         if otherCol != "" and otherCol != col:
+            self.fifty_move = 0
+
 
 
 
@@ -1277,10 +1623,10 @@ class GameManadgement():
       else:
 
          #Converting the user's input
-         nowX = int(self.mapNumberToX(a.group()))
-         nowY = int(b.group())
-         nextX = int(self.mapNumberToX(c.group()))
-         nextY = int(d.group())
+         nowX = self.mapNumberToX(a.group())
+         nowY = self.mapNumberToY(b.group())
+         nextX = self.mapNumberToX(c.group())
+         nextY = self.mapNumberToY(d.group())
 
          #If the starting and ending position is the same
          if nowX == nextX and nowY == nextY:
@@ -1294,29 +1640,55 @@ class GameManadgement():
             #This method deals with the pawn
             if fig == "pawn" and playerColor == col:
                if self.pawn_move(nowX=nowX, nowY=nowY, nextX=nextX, nextY=nextY, color=col, useCopyTable=useCopyTable):
+
+                  #if it is a 2 step forward move
+                  if col == "black" and nextY == nowY + 2:
+                     self.en_passant.append(dict(expire=self.roundCount+2, tableX=nextX, tableY=nextY, realX=nextX, realY=nextY-1, col=col))
+                  
+                  elif col == "white" and nextY == nowY - 2:
+                     self.en_passant.append(dict(expire=self.roundCount+1, tableX=nextX, tableY=nextY, realX=nextX, realY=nextY+1, col=col))
+                  
                   
                   #if the pawn is in a figure-switch position
-                  if self.pawnSwitch(nextY=nextY, col=col):
+                  elif self.pawnSwitch(nextY=nextY, col=col):
                      while True:
-                        ans = input("Mire cseréljem be a parasztot? [bástya, futó, huszár, vezér]: ").strip().lower()
+                        ans = input(self.lang.pawnSwitchMessage).strip().lower()
                         #translating the input to figures
-                        if ans == "vezér":
+                        if ans == self.lang.queen:
                            fig = "queen"
                            break
-                        elif ans == "bástya":
+                        elif ans == self.lang.rook:
                            fig = "rook"
                            break
-                        elif ans == "futó":
+                        elif ans == self.lang.bishop:
                            fig = "bishop"
                            break
-                        elif ans == "huszár":
+                        elif ans == self.lang.knight:
                            fig = "knight"
                            break
                         else:
-                           print(" HIBA: nincs ilyen figura az opciók között!")
+                           print(self.lang.wrongFigure)
+
+                  
+                  #if the user wants to perform an en_passant kill
+                  for i in range(len(self.en_passant)):
+                     if nextX == self.en_passant[i]["realX"] and nextY == self.en_passant[i]["realY"] and col != self.en_passant[i]["col"]:
+                        self.alterTable(nowX=nowX, nowY=nowY, nextX=nextX, nextY=nextY, col=col, fig=fig, thirdX=self.en_passant[i]["tableX"], thirdY=self.en_passant[i]["tableY"], thirdPos="", useCopyTable=useCopyTable)
+                        return False
+
 
                   #it makes the change to the table
                   self.alterTable(nowX=nowX, nowY=nowY, nextX=nextX, nextY=nextY, col=col, fig=fig, useCopyTable=useCopyTable)
+
+                  #it makes the reset of the fifty_move variable
+                  #if the move was on the copyTable
+                  if useCopyTable:
+                     self.copyFifty_move = 0
+
+                  #if the move was performed on the table
+                  else:
+                     self.fifty_move = 0
+
                   return False
                
                else:
@@ -1325,7 +1697,74 @@ class GameManadgement():
             #This method deals with the rook
             elif fig == "rook" and playerColor == col:
                if self.rook_move(nowX=nowX, nowY=nowY, nextX=nextX, nextY=nextY, color=col, useCopyTable=useCopyTable):
+                  
+                  #altering the table
                   self.alterTable(nowX=nowX, nowY=nowY, nextX=nextX, nextY=nextY, col=col, fig=fig, useCopyTable=useCopyTable)
+
+                  #altering the blackCastling dictionary
+                  if playerColor == "black":
+                     if nowY == 1 and nowX == 1 and not self.blackCastling["leftRookMoved"]:
+                        self.blackCastling["leftRookMoved"] = True
+
+                     elif nowY == 1 and nowX == 8 and not self.blackCastling["rightRookMoved"]:
+                        self.blackCastling["rightRookMoved"] = True
+
+                  #altering the whiteCastling dictionary
+                  elif playerColor == "white":
+                     if nowY == 8 and nowX == 1 and not self.whiteCastling["leftRookMoved"]:
+                        self.whiteCastling["leftRookMoved"] = True
+
+                     elif nowY == 8 and nowX == 8 and not self.whiteCastling["rightRookMoved"]:
+                        self.whiteCastling["rightRookMoved"] = True
+                  
+                  
+                  #Updating the king's move
+                  #if we use the copyTable
+                  if useCopyTable:
+                     if col == "black":
+                        
+                        #creating a copy of the blackCastling
+                        self.copyBlackCastling = deepcopy(self.blackCastling)
+
+                        if nowY == 1 and nowX == 1 and not self.copyBlackCastling["leftRookMoved"]:
+                           self.copyBlackCastling["leftRookMoved"] = True
+
+                        elif nowY == 1 and nowX == 8 and not self.copyBlackCastling["rightRookMoved"]:
+                           self.copyBlackCastling["rightRookMoved"] = True
+
+
+                     elif col  == "white":
+
+                        #creating a copy of the whiteCastling
+                        self.copyWhiteCastling = deepcopy(self.whiteCastling)
+                        
+                        if nowY == 8 and nowX == 1 and not self.copyWhiteCastling["leftRookMoved"]:
+                           self.copyWhiteCastling["leftRookMoved"] = True
+
+                        elif nowY == 8 and nowX == 8 and not self.copyWhiteCastling["rightRookMoved"]:
+                           self.copyWhiteCastling["rightRookMoved"] = True
+                        
+                  
+                  #if the we used the table
+                  else:
+
+                     if playerColor == "black":
+                        if nowY == 1 and nowX == 1 and not self.blackCastling["leftRookMoved"]:
+                           self.blackCastling["leftRookMoved"] = True
+
+                        elif nowY == 1 and nowX == 8 and not self.blackCastling["rightRookMoved"]:
+                           self.blackCastling["rightRookMoved"] = True
+
+                     #altering the whiteCastling dictionary
+                     elif playerColor == "white":
+                        if nowY == 8 and nowX == 1 and not self.whiteCastling["leftRookMoved"]:
+                           self.whiteCastling["leftRookMoved"] = True
+
+                        elif nowY == 8 and nowX == 8 and not self.whiteCastling["rightRookMoved"]:
+                           self.whiteCastling["rightRookMoved"] = True
+                  
+
+                  #finally return False to indicate no errors
                   return False
                else:
                   return self.stepError
@@ -1357,35 +1796,75 @@ class GameManadgement():
             #This method deals with the king
             elif fig == "king" and playerColor == col:
                if self.king_move(nowX=nowX, nowY=nowY, nextX=nextX, nextY=nextY, color=col, useCopyTable=useCopyTable):
-                  #if the king is safe to step there
-                  if not self.checkForCheck(kingX=nextX, kingY=nextY, col=col, useCopyTable=useCopyTable):
-                     self.alterTable(nowX=nowX, nowY=nowY, nextX=nextX, nextY=nextY, col=col, fig=fig, useCopyTable=useCopyTable)
-                     
-                     #Update the king's position
-                     #if the we used the copyTable
-                     if useCopyTable:
-                        if col == "black":
-                           self.copyBlackKing["x"] = nextX
-                           self.copyBlackKing["y"] = nextY
-                        elif col  == "white":
-                           self.copyWhiteKing["x"] = nextX
-                           self.copyWhiteKing["y"] = nextY
-                     
-                     #if the we used the table
-                     else:
-                        if col == "black":
-                           self.blackKing["x"] = nextX
-                           self.blackKing["y"] = nextY
-                        elif col  == "white":
-                           self.whiteKing["x"] = nextX
-                           self.whiteKing["y"] = nextY
-                     
-                     #finally return False for no errors
-                     return False
                   
+                  #if the move is a castling
+                  if nextY == nowY and (nextX == nowX - 2 or nextX == nowX + 2) and useCopyTable == False:
+
+                     #setting up the rook
+                     thirdPos = col + "_rook"
+
+                     #if the user's king goes left
+                     if nextX == nowX - 2:
+                        self.alterTable(nowX=nowX, nowY=nowY, nextX=nextX, nextY=nextY, col=col, fig=fig, thirdX=nowX-1, thirdY=nowY, thirdPos=thirdPos, fourthX=1, fourthY=nowY, fourthPos="")
+
+                     #if the user's king goes right
+                     if nextX == nowX + 2:
+                        self.alterTable(nowX=nowX, nowY=nowY, nextX=nextX, nextY=nextY, col=col, fig=fig, thirdX=nowX+1, thirdY=nowY, thirdPos=thirdPos, fourthX=8, fourthY=nowY, fourthPos="")
+
+                  
+                  #if it's a normal step and the king is safe to step there
+                  elif not self.checkForCheck(kingX=nextX, kingY=nextY, col=col, useCopyTable=useCopyTable):
+                     self.alterTable(nowX=nowX, nowY=nowY, nextX=nextX, nextY=nextY, col=col, fig=fig, useCopyTable=useCopyTable)
+                  
+
                   #if the king can't get there due to check occurrence
                   else:
                      return self.stepError
+
+
+                  """
+                  If everything went alright
+                  """
+
+                  #Updating the king's move
+                  #if we use the copyTable
+                  if useCopyTable:
+                     if col == "black":
+                        self.copyBlackCastling = deepcopy(self.blackCastling)
+                        self.copyBlackCastling["kingMoved"] = True
+                     elif col  == "white":
+                        self.copyWhiteCastling = deepcopy(self.whiteCastling)
+                        self.copyWhiteCastling["kingMoved"] = True
+                  
+                  #if the we used the table
+                  else:
+                     if col == "black":
+                        self.blackCastling["kingMoved"] = True
+                     elif col  == "white":
+                        self.whiteCastling["kingMoved"] = True
+
+
+                  #Update the king's position
+                  #if the we used the copyTable
+                  if useCopyTable:
+                     if col == "black":
+                        self.copyBlackKing["x"] = nextX
+                        self.copyBlackKing["y"] = nextY
+                     elif col  == "white":
+                        self.copyWhiteKing["x"] = nextX
+                        self.copyWhiteKing["y"] = nextY
+                  
+                  #if the we used the table
+                  else:
+                     if col == "black":
+                        self.blackKing["x"] = nextX
+                        self.blackKing["y"] = nextY
+                     elif col  == "white":
+                        self.whiteKing["x"] = nextX
+                        self.whiteKing["y"] = nextY
+                  
+                  #finally return False for no errors
+                  return False
                
                #if the king can't get there
                else:
