@@ -19,7 +19,7 @@ class Hungarian():
       
       #These values are used in the includes/main.py, newGame0() function
       self.newGameMessage = "Szeretnének egy új játékot indítani? ([igen] vagy [nem]): "
-      self.newGameNo = "\n\nRendben\nRemélem tetszett a kis játékom :)\nKészítette: Egedi Viktor © 2019"
+      self.newGameNo = "\n\nRendben\nRemélem tetszett a kis játékom :)\nKészítette: Egedi Viktor - 2019"
 
       #These are the error messages used in includes/gameRules.py
       self.invalidInput = "  HIBA: érvénytelen pozíciót adott meg!"
@@ -71,7 +71,7 @@ class English():
       
       #These values are used in the includes/main.py, newGame0() function
       self.newGameMessage = "Would you like to start a new game? ([yes] or [no]): "
-      self.newGameNo = "\n\nAll right.\nI hope you enjoyed my little creation :)\nCreator: Viktor Egedi © 2019"
+      self.newGameNo = "\n\nAll right.\nI hope you enjoyed my little creation :)\nCreator: Viktor Egedi - 2019"
 
       #These are the error messages used in includes/gameRules.py
       self.invalidInput = "  ERROR: you inserted an incorrect position!"

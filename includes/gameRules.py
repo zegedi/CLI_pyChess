@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
-import sys
 from pathlib import Path
 from languages.languages import *
 from colorama import init, Fore, Back, Style
 from random import randint
 from copy import deepcopy
+import sys
+import os
 import re
 
 class GameManadgement():
@@ -595,13 +596,17 @@ class GameManadgement():
          for i in range(60):
             print("")
 
-         #creating the gameOver filename
-         fileName = "gg" + str(randint(1,3)) + ".txt"
-         path = Path("includes", fileName)
-
          #then priniting the GAME OVER SIGN
-         with open(path, "r", encoding="utf8") as f:
-            print(f.read())
+         try:
+            #creating the gameOver filename
+            folder = os.path.dirname(os.path.abspath(__file__))
+            fileName = "gg" + str(randint(1,3)) + ".txt"
+            path = Path(folder, fileName)
+
+            with open(path, "r", encoding="utf8") as f:
+               print(f.read())
+         except:
+            print("GAME OVER!\n\n")
 
          #printing the final result and returning False to indicate this is the end of the game
          #if player01 won
@@ -1012,14 +1017,14 @@ class GameManadgement():
                      #making the copies of the king's position
                      #it is used for updating the king's finaly position
                      if playerColor == "white":
+                        self.copyWhiteKing = self.whiteKing
                         kingX = self.copyWhiteKing["x"]
                         kingY = self.copyWhiteKing["y"]
-                        print(self.copyWhiteKing)
 
                      elif playerColor == "black":
+                        self.copyBlackKing = self.blackKing
                         kingX = self.copyBlackKing["x"]
                         kingY = self.copyBlackKing["y"]
-                        print(self.copyBlackKing)
 
                      #if the check is over
                      if not self.checkForCheck(kingX=kingX, kingY=kingY, col=playerColor, useCopyTable=True):
@@ -1028,12 +1033,10 @@ class GameManadgement():
                         if playerColor == "white":
                            self.whiteKing["x"] = self.copyWhiteKing["x"]
                            self.whiteKing["y"] = self.copyWhiteKing["y"]
-                           del self.copyWhiteKing
                            
                         elif playerColor == "black":
                            self.blackKing["x"] = self.copyBlackKing["x"]
                            self.blackKing["y"] = self.copyBlackKing["y"]
-                           del self.copyBlackKing
 
                         #updating the fifty_move variable
                         self.fifty_move = self.copyFifty_move

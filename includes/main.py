@@ -4,6 +4,7 @@ from includes.gameRules import GameManadgement
 from languages.languages import *
 from random import randint
 from pathlib import Path
+import os
 
 class Main(GameManadgement):
 
@@ -16,14 +17,16 @@ class Main(GameManadgement):
       #Printing the chess logo
       try:
          #creating tha path
+         folder = os.path.dirname(os.path.abspath(__file__))
          myfile = "chess" + str(randint(1,5)) + ".txt"
-         path = Path("includes", myfile)
+         path = Path(folder, myfile)
 
          #opening the Chess ASCII Character files
          with open(path, "r", encoding="utf8") as f:
             print(f.read())
       except:
-         print("SAKK by Viktor Egedi")
+         print("\nCHESS by Viktor Egedi\n")
+
 
       #This list holds the available languages for the game
       availableLangs = ['magyar', 'english']
@@ -61,10 +64,13 @@ class Main(GameManadgement):
 
       #This prints out the setup message
       print("\n\n")
-
-      path = Path("includes/setup.txt")
-      with open(path, "r", encoding="utf8") as f:
-         print(f.read())
+      try:
+         folder = os.path.dirname(os.path.abspath(__file__))
+         path = Path(folder, "setup.txt")
+         with open(path, "r", encoding="utf8") as f:
+            print(f.read())
+      except:
+         print("PLAYER SETUP!")
 
       #This dict holds the name of the players and their colors
       self.players = dict(player01="", color01="white", player02="", color02="black")
@@ -84,10 +90,15 @@ class Main(GameManadgement):
    def newGame(self):
 
       #Printing the new game logo
-      path = Path("includes/newgame.txt")
-      with open(path, "r", encoding="utf8") as f:
-         print(f.read())
-         print("\n\n")
+      try:
+         folder = os.path.dirname(os.path.abspath(__file__))
+         path = Path(folder, "newgame.txt")
+         with open(path, "r", encoding="utf8") as f:
+            print(f.read())
+      except:
+         print("\nNEW GAME")
+
+      print("\n\n")
 
       #Asking for a new game
       while True:
