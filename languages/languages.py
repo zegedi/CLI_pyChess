@@ -7,9 +7,10 @@ class Hungarian():
    def __init__(self):
 
       #these are basic values which the program uses to operate
-      self.langCode = "hu"
       self.langYes = "igen"
       self.langNo = "nem"
+      self.langYesShort = "i"
+      self.langNoShort = "n"
 
       #These values are used in the includes/main.py, playerSetup() function
       self.playerSetupMessage = "\n\n\nA játék megkezdéséhez regisztrálni kell a játékosokat!\n"
@@ -18,7 +19,7 @@ class Hungarian():
       self.playerSetupResult = "\nA játékosok: [{}] és [{}]\n\n"
       
       #These values are used in the includes/main.py, newGame0() function
-      self.newGameMessage = "Szeretnének egy új játékot indítani? ([igen] vagy [nem]): "
+      self.newGameMessage = "Szeretnének egy új játékot indítani? ([igen/nem] vagy [i/n]): "
       self.newGameNo = "\n\nRendben\nRemélem tetszett a kis játékom :)\nKészítette: Egedi Viktor - 2019"
 
       #These are the error messages used in includes/gameRules.py
@@ -44,8 +45,8 @@ class Hungarian():
       self.checkMessage = "\n Sakkot kaptál! Meg kell szüntetned ezt az állapotot!"
       self.roundMessage = "\n\n {}. KÖR:\n {} következik! ({}):"
       self.commandMessage = "\n Speciális parancsok: [giveup] - Játék feladása; [50move] - Ötven lépés szabálya; [drawoffer] - Döntetlen felajánlása"
-      self.giveupMessage = " Biztos vagy benne, hogy feladod a játszmát? ([igen] vagy [nem]): "
-      self.drawOfferMessage = " {}! {} felajánlotta a döntetlent. Elfogadod a azt? ([igen] vagy [nem]): "
+      self.giveupMessage = " Biztos vagy benne, hogy feladod a játszmát? ([igen/nem] vagy [i/n]): "
+      self.drawOfferMessage = " {}! {} felajánlotta a döntetlent. Elfogadod azt? ([igen/nem] vagy [i/n]): "
       self.pawnSwitchMessage = " Mire cseréljem be a parasztot? [bástya, futó, huszár, vezér]: "
       self.fromMessage = "\n\n Te lépsz: "
       self.toMessage = " Hova: "
@@ -59,9 +60,10 @@ class English():
    def __init__(self):
 
       #these are basic values which the program uses to operate
-      self.langCode = "en"
       self.langYes = "yes"
       self.langNo = "no"
+      self.langYesShort = "y"
+      self.langNoShort = "n"
 
       #These values are used in the includes/main.py, playerSetup() function
       self.playerSetupMessage = "\n\n\nBefore you start, you have to register the players!\n"
@@ -70,7 +72,7 @@ class English():
       self.playerSetupResult = "\nThe two players are: [{}] and [{}]\n\n"
       
       #These values are used in the includes/main.py, newGame0() function
-      self.newGameMessage = "Would you like to start a new game? ([yes] or [no]): "
+      self.newGameMessage = "Would you like to start a new game? ([yes/no] or [y/n]): "
       self.newGameNo = "\n\nAll right.\nI hope you enjoyed my little creation :)\nCreator: Viktor Egedi - 2019"
 
       #These are the error messages used in includes/gameRules.py
@@ -96,8 +98,8 @@ class English():
       self.checkMessage = "\n  Your king got checked! You need to change this status!"
       self.roundMessage = "\n\n {}. ROUND:\n {} is next! ({}):"
       self.commandMessage = "\n Special commands: [giveup] - To give up; [50move] - Fifty-move rule; [drawoffer] - Offer a draw"
-      self.giveupMessage = " Are you sure you want to give up? ([yes] or [no]): "
-      self.drawOfferMessage = " {}! {} offerd you a draw. Would you like ot accept it? ([yes] or [no]): "
+      self.giveupMessage = " Are you sure you want to give up? ([yes/no] or [y/n]): "
+      self.drawOfferMessage = " {}! {} offerd you a draw. Would you like ot accept it? ([yes/no] or [y/n]): "
       self.pawnSwitchMessage = " What figure should I replace the pawn with? [rook, bishop, knight, queen]: "
       self.fromMessage = "\n\n Your move: "
       self.toMessage = " Go to: "

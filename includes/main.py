@@ -104,18 +104,18 @@ class Main(GameManadgement):
       while True:
          while True:
             ans = input(self.lang.newGameMessage).strip().lower()
-            if (ans != self.lang.langYes and ans != self.lang.langNo):
+            if (ans != self.lang.langYes and ans != self.lang.langNo and ans != self.lang.langYesShort and ans != self.lang.langNoShort):
                pass
             else:
                break
          
          #if the players don't want to play
-         if (ans == self.lang.langNo):
+         if (ans == self.lang.langNo or ans == self.lang.langNoShort):
             print(self.lang.newGameNo)
             break
          
          #if the players want to play
-         elif (ans == self.lang.langYes):
+         elif (ans == self.lang.langYes or ans == self.lang.langYesShort):
             #Then the games starts
             nwGame = GameManadgement(player01=self.players['player01'], player02=self.players['player02'], color01=self.players['color01'], color02=self.players['color02'], lang=self.langChoise)
 

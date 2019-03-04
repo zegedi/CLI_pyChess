@@ -887,12 +887,12 @@ class GameManadgement():
                   ans = input(self.lang.giveupMessage).strip().lower()
 
                   #if the player wants to give up
-                  if ans == self.lang.langYes:
+                  if ans == self.lang.langYes or ans == self.lang.langYesShort:
                      gameOver(self=self, otherPlayer=otherPlayer, otherCol=otherColor)
                      return False
 
                   #if the player doesn't want to give up
-                  elif ans == self.lang.langNo:
+                  elif ans == self.lang.langNo or ans == self.lang.langNoShort:
                      break
 
 
@@ -903,11 +903,11 @@ class GameManadgement():
                   ans = input(self.lang.drawOfferMessage.format(otherPlayer, playerName)).strip().lower()
 
                   #if the other player denise
-                  if ans == self.lang.langNo:
+                  if ans == self.lang.langNo or ans == self.lang.langNoShort:
                      break
 
                   #if the other player accepts the draw
-                  elif ans == self.lang.langYes:
+                  elif ans == self.lang.langYes or ans == self.lang.langYesShort:
                      gameOver(self=self)
                      return False
 
